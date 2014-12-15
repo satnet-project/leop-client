@@ -1,0 +1,18 @@
+body {
+	background-color: #0f3e62 !important;
+	text-align: center;
+	padding: 10px;
+}
+
+#header {
+}
+
+#logo {
+	width: auto;
+	border: 2px solid;
+	border-color: rgba(255, 255, 255, 0.5);
+	margin-bottom: 15px;
+}
+
+#footer {
+}
