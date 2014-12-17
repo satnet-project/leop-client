@@ -1,7 +1,8 @@
 body {
-	background-color: #0f3e62 !important;
+	background-color: #0f3e62;
 	text-align: center;
 	padding: 10px;
+	color: white;	
 }
 
 #header {
@@ -15,4 +16,32 @@ body {
 }
 
 #footer {
+}
+
+#refreshImg {
+	width: 65%;
+}
+
+#serialPorts, #connectBtn {
+	width: 100%;
+}
+
+.button-large {
+	font-size: 110%;
+}
+
+
+.button-success,
+.button-error, {
+	color: white;
+	border-radius: 4px;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-success {
+	background: rgb(28, 184, 65); /* this is a green */
+}
+
+.button-error {
+	background: rgb(202, 60, 60); /* this is a maroon */
 }

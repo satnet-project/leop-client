@@ -4,28 +4,42 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title>SatNET • Client</title>
+		<link rel="stylesheet" href="css/pure/base-context-min.css">
+		<link rel="stylesheet" href="css/pure/base-min.css">
+		<link rel="stylesheet" href="css/pure/buttons-core-min.css">
+		<link rel="stylesheet" href="css/pure/buttons-min.css">
+		<link rel="stylesheet" href="css/pure/forms-nr-min.css">
+		<link rel="stylesheet" href="css/pure/grids-core-min.css">
+		<link rel="stylesheet" href="css/pure/grids-min.css">
+		<link rel="stylesheet" href="css/pure/grids-units-min.css">
+		<link rel="stylesheet" href="css/pure/pure-nr-min.css">
 		<link rel="stylesheet" href="css/base.css">
-		<link rel="stylesheet" href="css/bootstrap-theme.css">
-		<link rel="stylesheet" href="css/bootstrap.min.css">		
 	</head>
 	<body>
 		<header id="header">
-			<img id="logo" src="assets/satnet_logo.png">
+			<img id="logo" src="assets/satnet_200.png">
 		</header>
 		<section id="main">
-		<form class="form-inline" role="form">
-			<select id="serialPorts" class="form-control">
-				<option value="not_selected">(Not selected)</option>
-			</select>
-			<button type="button" class="btn btn-default" id="refreshPorts"><img src="assets/glyphicon-refresh.png"></button>
-			</form>
+			<form class="pure-form"><fieldset>
+				<div class="pure-g">
+					<div class="pure-u-4-5">
+						<select id="serialPorts" >
+							<option value="not_selected">(Not selected)</option>
+						</select>
+					</div>
+					<div class="pure-u-1-5">
+						<button class="pure-button" id="refreshPorts"><img id="refreshImg" src="assets/glyphicon-refresh.png"></button>
+					</div>
+				</div>
+			</fieldset></form>
 		</section>
 		<section>
-			<button type="button" class="btn btn-default" id="connectBtn">CONNECT</button>
+			<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
 		</section>
 		<footer id="info">
 			<p>Developed by <a href="http://github.com/satnet-project">SatNET</a></p>
 		</footer>
+		<script src="js/terminal.js"></script>		
 		<script src="js/handlers.js"></script>
 	</body>
 </html>

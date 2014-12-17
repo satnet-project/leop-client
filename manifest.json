@@ -22,14 +22,14 @@
   "name": "SatNET",
   "version": "0.1",
   "icons": {
-    "128": "satnet_128.png",
-    "48": "satnet_48_test.png",
-    "16": "satnet_16.png"   
+    "128": "assets/satnet_128.png",
+    "48": "assets/satnet_48_test.png",
+    "16": "assets/satnet_16.png"   
   },
   "permissions": ["serial"],
   "app": {
     "background": {
-      "scripts": ["background.js"]
+      "scripts": ["js/background.js"]
     }
   },
   "minimum_chrome_version": "33"

@@ -24,7 +24,7 @@
  */
 
 function launch() {
-  chrome.app.window.create('html/index.html', {
+  chrome.app.window.create('index.html', {
     bounds: { width: 300, height: 400 }
   });
 }
