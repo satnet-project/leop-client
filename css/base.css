@@ -45,3 +45,11 @@ body {
 .button-error {
 	background: rgb(202, 60, 60); /* this is a maroon */
 }
+
+a:link {
+	color: #95a5a6;
+}
+
+a:visited {
+	color: #95a5a6;
+}

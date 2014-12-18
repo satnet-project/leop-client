@@ -24,8 +24,16 @@
  */
 
 function launch() {
-  chrome.app.window.create('html/index.html', {
-    bounds: { width: 300, height: 400 }
+  // Open TERMINAL window on startup
+  chrome.app.window.create('terminal.html', {
+    id: 'terminal',
+    innerBounds: { width: 600, height: 400, top: 0, left: 300 }
+  });
+
+  // Open MAIN window
+  chrome.app.window.create('index.html', {
+    innerBounds: { width: 300, height: 400, top: 0, left: 0},
+    resizable: false,
   });
 }
 chrome.app.runtime.onLaunched.addListener(launch);

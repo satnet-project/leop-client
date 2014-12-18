@@ -18,6 +18,7 @@
 	*/
 
 var select = document.getElementById("serialPorts");
+var connectionID = null;
 
 // Callback to deal with REFRESH button
 var onGetDevices = function(ports) {
@@ -42,24 +43,22 @@ document.getElementById('refreshPorts').addEventListener('click', function (e) {
 // Callback to deal with CONNECT button
 var onConnect = function(connectionInfo) {
 	// The serial port has been opened. Save its id to use later.
-	//_this.connectionId = connectionInfo.connectionId;
-	chrome.app.window.create('terminal.html', {
-		id: 'terminal',
-		bounds: { width: 600, height: 400 }
-	});
+	//_this.connectionId = connectionInfo.connectionId;	
 
 	if (!connectionInfo) {
 		document.getElementById('connectBtn').classList.add('button-error');
-		append('Connection error');
 		console.log('Connection error');		
+		append('Connection error');
 		chrome.serial.getDevices(onGetDevices);
 		window.setTimeout(function () {
 			document.getElementById('connectBtn').classList.remove('button-error');
 		}, 2000);
 	} else {
-		append('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
 		console.log('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
+		append('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
+		connectionId = connectionInfo.connectionId;
 		document.getElementById('connectBtn').classList.add('button-success');
+		chrome.serial.onReceive.addListener(onReceiveCallback);
 	}
 }
 
@@ -68,14 +67,27 @@ document.getElementById('connectBtn').addEventListener('click', function (e) {
 	chrome.serial.connect(path, {bitrate: 115200}, onConnect);
 });
 
+// Callback to deal with DISCONNECT button
+var onDisconnect = function(connectionInfo) {
+	console.log('Connection closed (ID: ' + connectionId + ')');
+	append('Connection closed (ID: ' + connectionId + ')');	
+}
+
+document.getElementById('disconnectBtn').addEventListener('click', function (e) {
+	chrome.serial.disconnect(connectionId, onDisconnect);
+});
+
 // Callback to read from serial port
+var stringReceived = '';
+
 var onReceiveCallback = function(info) {
-	var stringReceived = '';
 	if (info.data) {
 		var str = convertArrayBufferToString(info.data);
+		console.log('Received: ' + info.data);
+		append('Received: ' + info.data);
 		if (str.charAt(str.length-1) === '\n') {
 			stringReceived += str.substring(0, str.length-1);
-			onLineReceived(stringReceived);
+			append(stringReceived);
 			stringReceived = '';
 		} else {
 			stringReceived += str;
@@ -83,18 +95,12 @@ var onReceiveCallback = function(info) {
 	}
 };
 
-chrome.serial.onReceive.addListener(onReceiveCallback);
 
 // Callback to attend serial port events
 var onReceiveErrorCallback = function(info) {
-	chrome.app.window.create('terminal.html', {
-		id: 'terminal',
-		bounds: { width: 600, height: 400 }
-	});
-
 	document.getElementById('connectBtn').classList.remove('button-success');
 	chrome.serial.getDevices(onGetDevices);
-	append(info);
+	append(info.error);
 	console.log(info);
 };
 
