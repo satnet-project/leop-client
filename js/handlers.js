@@ -43,16 +43,13 @@ document.getElementById('refreshPorts').addEventListener('click', function (e) {
 
 // Callback to deal with CONNECT button
 var onConnect = function(connectionInfo) {
-	// The serial port has been opened. Save its id to use later.
-	//_this.connectionId = connectionInfo.connectionId;	
-
 	if (!connectionInfo) {
 		connectBtn.classList.add('button-error');
 		append('Connection error');
 		chrome.serial.getDevices(onGetDevices);
 		window.setTimeout(function () {
 			connectBtn.classList.remove('button-error');
-		}, 2000);
+		}, 1000);
 	} else {
 		append('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
 		connectionId = connectionInfo.connectionId;
@@ -67,7 +64,7 @@ connectBtn.addEventListener('click', function (e) {
 	if (connectBtn.classList.contains('pure-button-disabled')) return;
 	var path = select.options[select.selectedIndex].value;
 	disconnectBtn.classList.remove('pure-button-disabled');
-	chrome.serial.connect(path, {bitrate: 115200}, onConnect);
+	chrome.serial.connect(path, {bitrate: 115200, persistent: true}, onConnect);
 });
 
 // Callback to deal with DISCONNECT button
@@ -86,13 +83,9 @@ disconnectBtn.addEventListener('click', function (e) {
 
 // Callback to read from serial port
 var stringReceived = '';
-var temp = null;
 var onReceiveCallback = function(info) {
-	console.log('entra: ' + info.data);
-	temp = info;
 	if (info.data && info.connectionId == connectionId) {
-		var str = convertArrayBufferToString(info.data);
-		append('Received: ' + info.data);
+		var str = serial2str(info.data);		
 		if (str.charAt(str.length-1) === '\n') {
 			stringReceived += str.substring(0, str.length-1);
 			append(stringReceived);
@@ -103,6 +96,9 @@ var onReceiveCallback = function(info) {
 	}
 };
 
+function serial2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
 
 // Callback to attend serial port events
 var onReceiveErrorCallback = function(info) {
