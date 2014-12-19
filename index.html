@@ -20,27 +20,29 @@
 			<img id="logo" src="assets/satnet_200.png">
 		</header>
 		<section id="main">
-			<form class="pure-form"><fieldset>
-				<div class="pure-g">
-					<div class="pure-u-4-5">
-						<select id="serialPorts" >
-							<option value="not_selected">(Not selected)</option>
-						</select>
+			<form class="pure-form">
+				<fieldset>
+					<div class="pure-g">
+						<div class="pure-u-4-5">
+							<select id="serialPorts" >
+								<option value="not_selected">Select port...</option>
+							</select>
+						</div>
+						<div class="pure-u-1-5">
+							<button class="pure-button" id="refreshPorts"><img id="refreshImg" src="assets/glyphicon-refresh.png"></button>
+						</div>
 					</div>
-					<div class="pure-u-1-5">
-						<button class="pure-button" id="refreshPorts"><img id="refreshImg" src="assets/glyphicon-refresh.png"></button>
-					</div>
-				</div>
-			</fieldset></form>
+				</fieldset>
+			</form>
 		</section>
 		<section>
 			<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
-			<button class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>			
+			<button class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
 		</section>
 		<footer id="info">
-			<p>Developed by <a href="http://github.com/satnet-project">SatNET</a></p>
+			<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a></p>
 		</footer>
-		<script src="js/terminal.js"></script>		
+		<script src="js/terminal.js"></script>
 		<script src="js/handlers.js"></script>
 	</body>
 </html>
