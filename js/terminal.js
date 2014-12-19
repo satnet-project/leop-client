@@ -1,4 +1,5 @@
 function append(text) {
+	console.log(text);
 	var terminalID = chrome.app.window.get('terminal').contentWindow.window.document.getElementById('terminal');
 	var date = new Date();
 	var line = '[' + date.toUTCString() + '] ' + text;

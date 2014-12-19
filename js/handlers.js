@@ -17,7 +17,9 @@
 	Xabier Crespo Álvarez (xabicrespog@gmail.com)
 	*/
 
-var select = document.getElementById("serialPorts");
+var select = document.getElementById('serialPorts');
+var connectBtn = document.getElementById('connectBtn');
+var disconnectBtn = document.getElementById('disconnectBtn');
 var connectionID = null;
 
 // Callback to deal with REFRESH button
@@ -26,8 +28,7 @@ var onGetDevices = function(ports) {
 		select.remove(1);
 	}
 	for (var i=0 ; i < ports.length ; i++) {
-		console.log("Ports: " + ports[i].path);
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.text = ports[i].path;
 		select.add(option);
 	}
@@ -46,44 +47,51 @@ var onConnect = function(connectionInfo) {
 	//_this.connectionId = connectionInfo.connectionId;	
 
 	if (!connectionInfo) {
-		document.getElementById('connectBtn').classList.add('button-error');
-		console.log('Connection error');		
+		connectBtn.classList.add('button-error');
 		append('Connection error');
 		chrome.serial.getDevices(onGetDevices);
 		window.setTimeout(function () {
-			document.getElementById('connectBtn').classList.remove('button-error');
+			connectBtn.classList.remove('button-error');
 		}, 2000);
 	} else {
-		console.log('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
 		append('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
 		connectionId = connectionInfo.connectionId;
-		document.getElementById('connectBtn').classList.add('button-success');
+		connectBtn.classList.add('button-success');
+		connectBtn.classList.add('pure-button-disabled');
+		connectBtn.innerHTML = 'CONNECTED';		
 		chrome.serial.onReceive.addListener(onReceiveCallback);
 	}
 }
 
-document.getElementById('connectBtn').addEventListener('click', function (e) {
+connectBtn.addEventListener('click', function (e) {
+	if (connectBtn.classList.contains('pure-button-disabled')) return;
 	var path = select.options[select.selectedIndex].value;
+	disconnectBtn.classList.remove('pure-button-disabled');
 	chrome.serial.connect(path, {bitrate: 115200}, onConnect);
 });
 
 // Callback to deal with DISCONNECT button
-var onDisconnect = function(connectionInfo) {
-	console.log('Connection closed (ID: ' + connectionId + ')');
-	append('Connection closed (ID: ' + connectionId + ')');	
+var onDisconnect = function(result) {
+	if (result) {
+		connectionClosed(connectionId);
+	} else {
+		append('Connection with ID ' + connectionId + ' could not be closed');
+	}	
 }
 
-document.getElementById('disconnectBtn').addEventListener('click', function (e) {
+disconnectBtn.addEventListener('click', function (e) {
+	if (disconnectBtn.classList.contains('pure-button-disabled')) return;
 	chrome.serial.disconnect(connectionId, onDisconnect);
 });
 
 // Callback to read from serial port
 var stringReceived = '';
-
+var temp = null;
 var onReceiveCallback = function(info) {
-	if (info.data) {
+	console.log('entra: ' + info.data);
+	temp = info;
+	if (info.data && info.connectionId == connectionId) {
 		var str = convertArrayBufferToString(info.data);
-		console.log('Received: ' + info.data);
 		append('Received: ' + info.data);
 		if (str.charAt(str.length-1) === '\n') {
 			stringReceived += str.substring(0, str.length-1);
@@ -98,10 +106,16 @@ var onReceiveCallback = function(info) {
 
 // Callback to attend serial port events
 var onReceiveErrorCallback = function(info) {
-	document.getElementById('connectBtn').classList.remove('button-success');
+	connectionClosed(info.connectionId);
 	chrome.serial.getDevices(onGetDevices);
-	append(info.error);
-	console.log(info);
 };
 
 chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
+
+function connectionClosed(connectionId) {
+	append('Connection closed (ID: ' + connectionId + ')');
+	disconnectBtn.classList.add('pure-button-disabled');
+	connectBtn.innerHTML = 'CONNECT';
+	connectBtn.classList.remove('button-success');
+	connectBtn.classList.remove('pure-button-disabled');	
+}

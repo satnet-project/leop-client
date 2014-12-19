@@ -22,7 +22,7 @@ body {
 	width: 65%;
 }
 
-#serialPorts, #connectBtn {
+#serialPorts, #connectBtn, #disconnectBtn {
 	width: 100%;
 }
 
@@ -52,4 +52,8 @@ a:link {
 
 a:visited {
 	color: #95a5a6;
+}
+
+#disconnectBtn {
+
 }
