@@ -22,7 +22,7 @@ body {
 	width: 65%;
 }
 
-#serialPorts, #connectBtn, #disconnectBtn {
+.pure-button, input {
 	width: 100%;
 }
 
