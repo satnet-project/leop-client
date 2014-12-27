@@ -22,7 +22,7 @@ body {
 	width: 65%;
 }
 
-.pure-button, input {
+.pure-button, input, select {
 	width: 100%;
 }
 
@@ -56,4 +56,12 @@ a:visited {
 
 #disconnectBtn {
 
+}
+
+#main {
+	display: none;
+}
+
+#login {
+	display: block;
 }

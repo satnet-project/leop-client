@@ -31,7 +31,7 @@ function launch() {
   });
 
   // Open MAIN window
-  chrome.app.window.create('login.html', {
+  chrome.app.window.create('index.html', {
     innerBounds: { width: 300, height: 400, top: 0, left: 0},
     resizable: false,
   });

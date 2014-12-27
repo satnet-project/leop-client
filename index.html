@@ -19,6 +19,16 @@
 		<header id="header">
 			<img id="logo" src="assets/satnet_200.png">
 		</header>
+		<section id="login">
+			<form class="pure-form pure-form-stacked">
+				<fieldset>
+					<input id="usernameInp" type="text" placeholder="Username">
+					<input id="passwordInp" type="password" placeholder="Password">
+				</fieldset>
+			</form>
+			<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
+		</section>
+
 		<section id="main">
 			<form class="pure-form">
 				<fieldset>
@@ -34,15 +44,15 @@
 					</div>
 				</fieldset>
 			</form>
-		</section>
-		<section>
 			<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
 			<button class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
+			<button class="button-large pure-button pure-button-primary" id="logOutBtn">LOG OUT</button>			
 		</section>
 		<footer id="info">
 			<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a></p>
 		</footer>
 		<script src="js/terminal.js"></script>
+		<script src="js/login_handlers.js"></script>
 		<script src="js/handlers.js"></script>
 	</body>
 </html>
