@@ -1,6 +1,5 @@
 html, body {
 	height: 100%;
-	margin: 3px 5px;
 }
 
 body {
@@ -26,5 +25,5 @@ li:hover {
 	background-color: #3c3c3c;
 	width: 100%;
 	height: 100%;
+	overflow: scroll;
 }
-

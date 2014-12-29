@@ -15,29 +15,32 @@
 
 :Author:
 	Xabier Crespo Álvarez (xabicrespog@gmail.com)
-	*/
+*/
 
-var select = document.getElementById('serialPorts');
+var serialPortSel = document.getElementById('serialPortSel');
+var baudRateSel = document.getElementById('baudRateSel');
+var baudRateInp = document.getElementById('baudRateInp');
 var connectBtn = document.getElementById('connectBtn');
 var disconnectBtn = document.getElementById('disconnectBtn');
+var refreshPortsBtn = document.getElementById('refreshPortsBtn');
 var connectionID = null;
 
 // Callback to deal with REFRESH button
 var onGetDevices = function(ports) {
-	while (select.length > 1) {
-		select.remove(1);
+	while (serialPortSel.length > 1) {
+		serialPortSel.remove(1);
 	}
 	for (var i=0 ; i < ports.length ; i++) {
 		var option = document.createElement('option');
 		option.text = ports[i].path;
-		select.add(option);
+		serialPortSel.add(option);
 	}
 }
 
 // Read serial devices when opening the app
 chrome.serial.getDevices(onGetDevices);
 
-document.getElementById('refreshPorts').addEventListener('click', function (e) {
+refreshPortsBtn.addEventListener('click', function (e) {
 	chrome.serial.getDevices(onGetDevices);
 });
 
@@ -55,16 +58,40 @@ var onConnect = function(connectionInfo) {
 		connectionId = connectionInfo.connectionId;
 		connectBtn.classList.add('button-success');
 		connectBtn.classList.add('pure-button-disabled');
-		connectBtn.innerHTML = 'CONNECTED';		
+		connectBtn.innerHTML = 'CONNECTED';
 		chrome.serial.onReceive.addListener(onReceiveCallback);
 	}
 }
 
 connectBtn.addEventListener('click', function (e) {
+	// If the connection is already active
 	if (connectBtn.classList.contains('pure-button-disabled')) return;
-	var path = select.options[select.selectedIndex].value;
+	// Check if either the baud rate or the port id is not selected
+	if (serialPortSel.selectedIndex == 0) {
+		append('Please, select the TNC serial port');
+		return;
+	}
+	if (!baudRateInp.value.length) {
+		append('Please, select the TNC baud rate');
+		return;
+	}
+
+	var path = serialPortSel.options[serialPortSel.selectedIndex].value;
+	var baudrate = baudRateInp.value;
 	disconnectBtn.classList.remove('pure-button-disabled');
-	chrome.serial.connect(path, {bitrate: 115200, persistent: true}, onConnect);
+	chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
+});
+
+// Handling baud rate selection, if the selected option is 'Other'
+// replaces an input field by the select form. Otherwise copies the
+// option to the input to facilitate the code
+baudRateSel.addEventListener('change', function() {
+	if (baudRateSel.selectedIndex == baudRateSel.length-1) {
+		baudRateSel.style.display = "none";
+		baudRateInp.style.display = "block";
+	} else {
+		baudRateInp.value = baudRateSel.value;
+	}
 });
 
 // Callback to deal with DISCONNECT button

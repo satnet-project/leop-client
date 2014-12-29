@@ -13,6 +13,7 @@
 		<link rel="stylesheet" href="css/pure/grids-min.css">
 		<link rel="stylesheet" href="css/pure/grids-units-min.css">
 		<link rel="stylesheet" href="css/pure/pure-nr-min.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css">
 		<link rel="stylesheet" href="css/base.css">
 	</head>
 	<body>
@@ -21,36 +22,47 @@
 		</header>
 		<section id="login">
 			<form class="pure-form pure-form-stacked">
-				<fieldset>
-					<input id="usernameInp" type="text" placeholder="Username">
+				<fieldset class="pure-group">
+					<input id="usernameInp" type="text" placeholder="Email">
 					<input id="passwordInp" type="password" placeholder="Password">
 				</fieldset>
 			</form>
 			<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
 		</section>
-
 		<section id="main">
 			<form class="pure-form">
 				<fieldset>
 					<div class="pure-g">
 						<div class="pure-u-4-5">
-							<select id="serialPorts" >
+							<select id="serialPortSel" >
 								<option value="not_selected">Select port...</option>
 							</select>
 						</div>
 						<div class="pure-u-1-5">
-							<button class="pure-button" id="refreshPorts"><img id="refreshImg" src="assets/glyphicon-refresh.png"></button>
+							<button class="button-large pure-button" id="refreshPortsBtn"><i class="fa fa-refresh"></i></button>
 						</div>
 					</div>
 				</fieldset>
+				<fieldset>
+					<select id="baudRateSel">
+						<option value="not_selected">Select baud rate...</option>
+						<option value="115200">115200</option>
+						<option value="57600">57600</option>
+						<option value="19200">19200</option>
+						<option value="Other">Other</option>
+					</select>
+					<input id="baudRateInp" type="text" placeholder="Select baud rate...">
+				</fieldset>
+
 			</form>
 			<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
 			<button class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
-			<button class="button-large pure-button pure-button-primary" id="logOutBtn">LOG OUT</button>			
+			<button class="button-large pure-button pure-button-primary" id="logOutBtn">LOG OUT</button>
 		</section>
 		<footer id="info">
 			<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a></p>
 		</footer>
+		<script type="text/javascript" src="js/jsonRPC.js"></script>
 		<script src="js/terminal.js"></script>
 		<script src="js/login_handlers.js"></script>
 		<script src="js/handlers.js"></script>

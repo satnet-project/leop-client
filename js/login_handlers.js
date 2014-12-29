@@ -18,66 +18,84 @@
 	*/
 
 var satnetURL ="http://127.0.0.1:8000/" 
-var logInURL = "http://127.0.0.1:8000/rest-auth/login/"
-var logOutURL = "http://127.0.0.1:8000/rest-auth/logout/"
+var logInURL = satnetURL.concat("rest-auth/login/");
+var logOutURL = satnetURL.concat("rest-auth/logout/");
 //var loginURL = "http://httpbin.org/post"
-var signIn = document.getElementById('signInBtn');
-var logOut = document.getElementById('logOutBtn');
-var username = document.getElementById('usernameInp');
-var password = document.getElementById('passwordInp');
+
+var signInBtn = document.getElementById('signInBtn');
+var logOutBtn = document.getElementById('logOutBtn');
+var usernameInp = document.getElementById('usernameInp');
+var passwordInp = document.getElementById('passwordInp');
 
 var xmlHttp = null;
 
 // Callback to deal with SIGN IN button
-signIn.addEventListener('click', function (e) {
+function signIn() {
 	xmlHttp = new XMLHttpRequest();
 	xmlHttp.open("POST", logInURL, true);
 	xmlHttp.setRequestHeader('Content-Type', 'application/json');
 	xmlHttp.onreadystatechange = onLoginRequestReceived;
-	xmlHttp.send('{\"username\":\"' + username.value + '\",\"password\":\"' + password.value + '\"}');
-	console.log(xmlHttp);
+	xmlHttp.send('{\"username\":\"' + usernameInp.value + '\",\"password\":\"' + passwordInp.value + '\"}');
+	append(xmlHttp);
 	return xmlHttp.responseText;
+
+}
+
+signInBtn.addEventListener('click', function (e) {
+	signIn();
+});
+
+// Press ENTER to write the password
+usernameInp.addEventListener('keypress', function (e) {
+	if (e.keyCode == 13 || e.which == 13)
+		passwordInp.focus();
+});
+
+// Press ENTER to sign in
+passwordInp.addEventListener('keypress', function (e) {
+	if (e.keyCode == 13 || e.which == 13)
+		signIn();
 });
 
 function onLoginRequestReceived() {
 	// If request state == done
-	if (xmlHttp.readyState = 4) {
+	if (xmlHttp.readyState == 4) {
 		switch (xmlHttp.status) {
 			case 200:
-				console.log("Successfully logged in");
+				append("Successfully logged in");
 				document.getElementById("login").style.display = "none";
 				document.getElementById("main").style.display = "block";
 				break;
 			case 400:
-				console.log("Username/password incorrect");
+				append("Username/password incorrect");
 				break;
 			case 403:
-				console.log("Log in forbidden");
+				append("Log in forbidden");
 				break;
 			default:
-				console.log("Log in error");
+				append("Log in error");
 				break;
 		}
 	}
 }
 
 // Callback to deal with LOG OUT button
-logOut.addEventListener('click', function (e) {
+logOutBtn.addEventListener('click', function (e) {
 	xmlHttp = new XMLHttpRequest();
 	xmlHttp.open("POST", logOutURL, true);
 	xmlHttp.setRequestHeader('Content-Type', 'application/json');
 	xmlHttp.onreadystatechange = onLogOutRequestReceived;
 	xmlHttp.send();
-	console.log(xmlHttp);
+	append(xmlHttp);
 	return xmlHttp.responseText;
 });
 
 function onLogOutRequestReceived() {
 	// If request state == done
-	if (xmlHttp.readyState = 4) {
+	if (xmlHttp.readyState == 4) {
 		switch (xmlHttp.status) {
 			case 200:
-				console.log("Successfully logged out");
+				append("Successfully logged out");
 				document.getElementById("main").style.display = "none";
 				document.getElementById("login").style.display = "block";
 				break;
@@ -86,7 +104,7 @@ function onLogOutRequestReceived() {
 			case 403:
 				break;
 			default:
-				console.log("Log out error");
+				append("Log out error");
 				break;
 		}
 	}
