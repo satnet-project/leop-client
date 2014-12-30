@@ -15,130 +15,139 @@
 
 :Author:
 	Xabier Crespo Álvarez (xabicrespog@gmail.com)
+	Diego Hurtado de Mendoza Pombo (diego.hdmp@gmail.com)
 */
 
-var serialPortSel = document.getElementById('serialPortSel');
-var baudRateSel = document.getElementById('baudRateSel');
-var baudRateInp = document.getElementById('baudRateInp');
-var connectBtn = document.getElementById('connectBtn');
-var disconnectBtn = document.getElementById('disconnectBtn');
-var refreshPortsBtn = document.getElementById('refreshPortsBtn');
-var connectionID = null;
+var satnetClient = function() {
 
-// Callback to deal with REFRESH button
-var onGetDevices = function(ports) {
-	while (serialPortSel.length > 1) {
-		serialPortSel.remove(1);
-	}
-	for (var i=0 ; i < ports.length ; i++) {
-		var option = document.createElement('option');
-		option.text = ports[i].path;
-		serialPortSel.add(option);
-	}
-}
+	var rpc_url = 'http://172.19.51.170:8000/jrpc/';
+	this.rpc = new JsonRPC(rpc_url, { methods: ['system.login', 'system.logout', [ 'communications.gs.storePassiveMessage', false ]] });
 
-// Read serial devices when opening the app
-chrome.serial.getDevices(onGetDevices);
+	var kissparser = new kissParser(onReceiveFrameCallback);
+	this.connectionInfo = null;
 
-refreshPortsBtn.addEventListener('click', function (e) {
-	chrome.serial.getDevices(onGetDevices);
-});
+	// Elements in DOM
+	var serialPortSel = document.getElementById('serialPortSel');
+	var baudRateSel = document.getElementById('baudRateSel');
+	var baudRateInp = document.getElementById('baudRateInp');
+	var connectBtn = document.getElementById('connectBtn');
+	var disconnectBtn = document.getElementById('disconnectBtn');
+	var refreshPortsBtn = document.getElementById('refreshPortsBtn');
 
-// Callback to deal with CONNECT button
-var onConnect = function(connectionInfo) {
-	if (!connectionInfo) {
-		connectBtn.classList.add('button-error');
-		append('Connection error');
-		chrome.serial.getDevices(onGetDevices);
-		window.setTimeout(function () {
-			connectBtn.classList.remove('button-error');
-		}, 1000);
-	} else {
-		append('Connection succeded (ID: ' + connectionInfo.connectionId + ')');
-		connectionId = connectionInfo.connectionId;
-		connectBtn.classList.add('button-success');
-		connectBtn.classList.add('pure-button-disabled');
-		connectBtn.innerHTML = 'CONNECTED';
-		chrome.serial.onReceive.addListener(onReceiveCallback);
-	}
-}
-
-connectBtn.addEventListener('click', function (e) {
-	// If the connection is already active
-	if (connectBtn.classList.contains('pure-button-disabled')) return;
-	// Check if either the baud rate or the port id is not selected
-	if (serialPortSel.selectedIndex == 0) {
-		append('Please, select the TNC serial port');
-		return;
-	}
-	if (!baudRateInp.value.length) {
-		append('Please, select the TNC baud rate');
-		return;
+	// Refreshes list of serial devices in main window
+	this.refreshDevices = function() {
+		chrome.serial.getDevices(function(ports) {
+			while (serialPortSel.length > 1) {
+				serialPortSel.remove(1);
+			}
+			for (var i = 0; i < ports.length; i++) {
+				var option = document.createElement('option');
+				option.text = ports[i].path;
+				serialPortSel.add(option);
+			}
+		});
 	}
 
-	var path = serialPortSel.options[serialPortSel.selectedIndex].value;
-	var baudrate = baudRateInp.value;
-	disconnectBtn.classList.remove('pure-button-disabled');
-	chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
-});
-
-// Handling baud rate selection, if the selected option is 'Other'
-// replaces an input field by the select form. Otherwise copies the
-// option to the input to facilitate the code
-baudRateSel.addEventListener('change', function() {
-	if (baudRateSel.selectedIndex == baudRateSel.length-1) {
-		baudRateSel.style.display = "none";
-		baudRateInp.style.display = "block";
-	} else {
-		baudRateInp.value = baudRateSel.value;
-	}
-});
-
-// Callback to deal with DISCONNECT button
-var onDisconnect = function(result) {
-	if (result) {
-		connectionClosed(connectionId);
-	} else {
-		append('Connection with ID ' + connectionId + ' could not be closed');
-	}	
-}
-
-disconnectBtn.addEventListener('click', function (e) {
-	if (disconnectBtn.classList.contains('pure-button-disabled')) return;
-	chrome.serial.disconnect(connectionId, onDisconnect);
-});
-
-// Callback to read from serial port
-var stringReceived = '';
-var onReceiveCallback = function(info) {
-	if (info.data && info.connectionId == connectionId) {
-		var str = serial2str(info.data);		
-		if (str.charAt(str.length-1) === '\n') {
-			stringReceived += str.substring(0, str.length-1);
-			append(stringReceived);
-			stringReceived = '';
+	// Callback to deal with 'CONNECT' button
+	var onConnect = function(connInfo) {
+		if (!connInfo) {
+			connectBtn.classList.add('button-error');
+			terminal.log('Connection error');
+			refreshDevices();
+			window.setTimeout(function() {
+				connectBtn.classList.remove('button-error');
+			}, 1000);
 		} else {
-			stringReceived += str;
+			terminal.log('Connection succeeded (ID: ' + connInfo.connectionId + ')');
+			connectionInfo = connInfo;
+			connectBtn.classList.add('button-success');
+			connectBtn.classList.add('pure-button-disabled');
+			connectBtn.innerHTML = 'CONNECTED';
+			chrome.serial.onReceive.addListener(onReceiveCallback);
 		}
 	}
-};
 
-function serial2str(buf) {
-  return String.fromCharCode.apply(null, new Uint8Array(buf));
+	// Callback to deal with DISCONNECT button
+	var onDisconnect = function(result) {
+		if (result) {
+			connectionClosed(connectionId);
+		} else {
+			terminal.log('Connection with ID ' + connectionId + ' could not be closed');
+		}
+	}
+
+	// Callback to read from serial port
+	var onReceiveCallback = function(info) {
+		if (info.data && info.connectionId == connectionId) {
+			kissparser.update(info.data);
+		}
+	};
+
+	var onReceiveFrameCallback = function(frame) {
+		terminal.log('New frame received: ' + frame);
+	};
+
+	// Callback to attend serial port events
+	var onReceiveErrorCallback = function(info) {
+		connectionClosed(info.connectionId);
+		getDevices();
+	};
+	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
+
+
+	function connectionClosed(connectionId) {
+		terminal.log('Connection closed (ID: ' + connectionId + ')');
+		disconnectBtn.classList.add('pure-button-disabled');
+		connectBtn.innerHTML = 'CONNECT';
+		connectBtn.classList.remove('button-success');
+		connectBtn.classList.remove('pure-button-disabled');	
+	}
+
+
+	connectBtn.addEventListener('click', function (e) {
+		// If the connection is already active
+		if (connectBtn.classList.contains('pure-button-disabled')) return;
+		// Check if either the baud rate or the port id is not selected
+		if (serialPortSel.selectedIndex == 0) {
+			terminal.log('Please, select the TNC serial port');
+			return;
+		}
+		if (!baudRateInp.value.length) {
+			terminal.log('Please, select the TNC baud rate');
+			return;
+		}
+
+		var path = serialPortSel.options[serialPortSel.selectedIndex].value;
+		var baudrate = baudRateInp.value;
+		disconnectBtn.classList.remove('pure-button-disabled');
+		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
+	});
+
+	// Handling baud rate selection, if the selected option is 'Other'
+	// replaces an input field by the select form. Otherwise copies the
+	// option to the input to ease the code
+	baudRateSel.addEventListener('change', function() {
+		if (baudRateSel.selectedIndex == baudRateSel.length-1) {
+			baudRateSel.style.display = "none";
+			baudRateInp.style.display = "block";
+		} else {
+			baudRateInp.value = baudRateSel.value;
+		}
+	});
+
+	disconnectBtn.addEventListener('click', function (e) {
+		if (disconnectBtn.classList.contains('pure-button-disabled')) return;
+		chrome.serial.disconnect(connectionId, onDisconnect);
+	});
+
 }
 
-// Callback to attend serial port events
-var onReceiveErrorCallback = function(info) {
-	connectionClosed(info.connectionId);
-	chrome.serial.getDevices(onGetDevices);
-};
 
-chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
+// Create instance of satnet client on document ready
+var satnet;
+document.addEventListener("DOMContentLoaded", function(event) { 
+	satnet = new satnetClient();
 
-function connectionClosed(connectionId) {
-	append('Connection closed (ID: ' + connectionId + ')');
-	disconnectBtn.classList.add('pure-button-disabled');
-	connectBtn.innerHTML = 'CONNECT';
-	connectBtn.classList.remove('button-success');
-	connectBtn.classList.remove('pure-button-disabled');	
-}
+	satnet.refreshDevices();
+	terminal.log('Welcome to SATNet Client!');
+});

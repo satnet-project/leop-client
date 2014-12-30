@@ -15,34 +15,49 @@
 
 :Author:
 	Xabier Crespo Álvarez (xabicrespog@gmail.com)
+	Diego Hurtado de Mendoza Pombo (diego.hdmp@gmail.com)
 	*/
-
-var satnetURL ="http://127.0.0.1:8000/" 
-var logInURL = satnetURL.concat("rest-auth/login/");
-var logOutURL = satnetURL.concat("rest-auth/logout/");
-//var loginURL = "http://httpbin.org/post"
 
 var signInBtn = document.getElementById('signInBtn');
 var logOutBtn = document.getElementById('logOutBtn');
 var usernameInp = document.getElementById('usernameInp');
 var passwordInp = document.getElementById('passwordInp');
 
-var xmlHttp = null;
 
 // Callback to deal with SIGN IN button
 function signIn() {
-	xmlHttp = new XMLHttpRequest();
-	xmlHttp.open("POST", logInURL, true);
-	xmlHttp.setRequestHeader('Content-Type', 'application/json');
-	xmlHttp.onreadystatechange = onLoginRequestReceived;
-	xmlHttp.send('{\"username\":\"' + usernameInp.value + '\",\"password\":\"' + passwordInp.value + '\"}');
-	append(xmlHttp);
-	return xmlHttp.responseText;
-
+	satnet.rpc.system.login([ usernameInp.value, passwordInp.value ])
+		.onSuccess(function() {
+			terminal.log("Successfully logged in");
+			document.getElementById("login").style.display = "none";
+			document.getElementById("main").style.display = "block";
+		})
+		//.onException()
+		//.onComplete()
+		.execute();
 }
+
+
+// Callback to deal with LOG OUT button
+function signOut() {
+	satnet.rpc.system.logout()
+		.onSuccess(function() {	
+			terminal.log("Successfully logged out");
+			document.getElementById("login").style.display = "block";
+			document.getElementById("main").style.display = "none";
+		})
+		//.onException()
+		//.onComplete()
+		.execute();
+}
+
 
 signInBtn.addEventListener('click', function (e) {
 	signIn();
+});
+
+logOutBtn.addEventListener('click', function (e) {
+	signOut();
 });
 
 // Press ENTER to write the password
@@ -56,56 +71,3 @@ passwordInp.addEventListener('keypress', function (e) {
 	if (e.keyCode == 13 || e.which == 13)
 		signIn();
 });
-
-function onLoginRequestReceived() {
-	// If request state == done
-	if (xmlHttp.readyState == 4) {
-		switch (xmlHttp.status) {
-			case 200:
-				append("Successfully logged in");
-				document.getElementById("login").style.display = "none";
-				document.getElementById("main").style.display = "block";
-				break;
-			case 400:
-				append("Username/password incorrect");
-				break;
-			case 403:
-				append("Log in forbidden");
-				break;
-			default:
-				append("Log in error");
-				break;
-		}
-	}
-}
-
-// Callback to deal with LOG OUT button
-logOutBtn.addEventListener('click', function (e) {
-	xmlHttp = new XMLHttpRequest();
-	xmlHttp.open("POST", logOutURL, true);
-	xmlHttp.setRequestHeader('Content-Type', 'application/json');
-	xmlHttp.onreadystatechange = onLogOutRequestReceived;
-	xmlHttp.send();
-	append(xmlHttp);
-	return xmlHttp.responseText;
-});
-
-function onLogOutRequestReceived() {
-	// If request state == done
-	if (xmlHttp.readyState == 4) {
-		switch (xmlHttp.status) {
-			case 200:
-				append("Successfully logged out");
-				document.getElementById("main").style.display = "none";
-				document.getElementById("login").style.display = "block";
-				break;
-			case 400:
-				break;
-			case 403:
-				break;
-			default:
-				append("Log out error");
-				break;
-		}
-	}
-}
