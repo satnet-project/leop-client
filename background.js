@@ -24,17 +24,12 @@
  */
 
 function onLaunched() {
-  // Open TERMINAL window on startup
-  chrome.app.window.create('terminal.html', {
-    id: 'terminal',
-    innerBounds: { width: 600, height: 400, top: 0, left: 300 }
-  });  
 
   // Open MAIN window
   chrome.app.window.create('index.html', {
     id: 'index',
-    innerBounds: { width: 300, height: 400, top: 0, left: 0,
-          minWidth: 300, maxWidth: 300, minHeight: 400, maxHeight: 400 }
+    innerBounds: { width: 900, height: 450, top: 0, left: 0,
+          minWidth: 900, maxWidth: 900, minHeight: 450, maxHeight: 450 }
   });
 
 }

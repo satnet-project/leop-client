@@ -2,7 +2,39 @@ body {
 	background-color: #0f3e62;
 	text-align: center;
 	padding: 10px;
-	color: white;	
+	color: white;
+}
+
+#menu {
+	position: absolute;	
+	width: 280px;
+	height: 400px;
+}
+
+#terminalbox {
+	position: absolute;
+	top: 0;
+	left: 300px;
+	width: 600px;
+	height: 450px;
+	background-color: #3c3c3c;
+	color: white;
+	overflow: scroll;
+	text-align: left;
+}
+
+#terminalbox > ul {
+	padding: 0;
+	margin: 10px 0;
+	list-style-type: none;
+}
+
+#terminalbox > ul > li {
+	padding: 0 10px;
+}
+
+#terminalbox > ul > li:hover {
+	background-color: #565656;
 }
 
 #header {
