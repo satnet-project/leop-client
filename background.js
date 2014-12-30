@@ -23,17 +23,19 @@
  * @see http://developer.chrome.com/apps/app.window.html
  */
 
-function launch() {
+function onLaunched() {
   // Open TERMINAL window on startup
   chrome.app.window.create('terminal.html', {
     id: 'terminal',
     innerBounds: { width: 600, height: 400, top: 0, left: 300 }
-  });
+  });  
 
   // Open MAIN window
   chrome.app.window.create('index.html', {
-    innerBounds: { width: 300, height: 400, top: 0, left: 0},
-    resizable: false,
+    id: 'index',
+    innerBounds: { width: 300, height: 400, top: 0, left: 0,
+          minWidth: 300, maxWidth: 300, minHeight: 400, maxHeight: 400 }
   });
+
 }
-chrome.app.runtime.onLaunched.addListener(launch);
+chrome.app.runtime.onLaunched.addListener(onLaunched);
