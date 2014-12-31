@@ -53,7 +53,7 @@ var satnetClient = function() {
 					groundStationSel.add(option);
 				}
 			})
-			//.onException()
+			.onException(jsonRPCerror)
 			//.onComplete()
 			.execute();		
 	}
@@ -140,7 +140,11 @@ var satnetClient = function() {
 			terminal.log('Please, select the TNC baud rate');
 			return;
 		}
-
+		if (groundStationSel.selectedIndex == 0) {
+			terminal.log('Please, select a ground station');
+			return;
+		}
+				
 		var path = serialPortSel.options[serialPortSel.selectedIndex].value;
 		var baudrate = baudRateInp.value;
 		disconnectBtn.classList.remove('pure-button-disabled');

@@ -38,11 +38,10 @@ function signIn() {
 				terminal.log("Email/password incorrect")
 			}	
 		})
-		//.onException()
+		.onException(jsonRPCerror)
 		//.onComplete()
 		.execute();
 }
-
 
 // Callback to deal with LOG OUT button
 function signOut() {
@@ -56,11 +55,15 @@ function signOut() {
 				terminal.log("Error when logging out. Try again later");
 			}	
 		})
-		//.onException()
+		.onException(jsonRPCerror)
 		//.onComplete()
 		.execute();
 }
 
+var jsonRPCerror = function(error) {
+	terminal.log("An error has been produced!")
+	terminal.log("Details: " + error.message + ' (' + error.code + ')');
+}
 
 signInBtn.addEventListener('click', function (e) {
 	signIn();
