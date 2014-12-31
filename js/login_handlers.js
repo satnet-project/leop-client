@@ -34,6 +34,14 @@ function signIn() {
 				document.getElementById("main").style.display = "block";
 				satnet.refreshDevices();
 				satnet.refreshGS();
+
+				//Modify username at the footer 
+				//(http://stackoverflow.com/questions/4784568/set-content-of-html-span-with-javascript)
+				var span = document.getElementById('userEmailSpan');
+				while( span.firstChild ) {
+				    span.removeChild( span.firstChild );
+				}
+				span.appendChild( document.createTextNode(usernameInp.value) )
 			} else {
 				terminal.log("Email/password incorrect")
 			}	
@@ -46,7 +54,7 @@ function signIn() {
 // Callback to deal with LOG OUT button
 function signOut() {
 	satnet.rpc.system.logout()
-		.onSuccess(function() {
+		.onSuccess(function(result) {
 			if (result) {	
 				terminal.log("Successfully logged out");
 				document.getElementById("login").style.display = "block";

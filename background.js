@@ -28,8 +28,7 @@ function onLaunched() {
   // Open MAIN window
   chrome.app.window.create('index.html', {
     id: 'index',
-    innerBounds: { width: 900, height: 450, top: 0, left: 0,
-          minWidth: 900, maxWidth: 900, minHeight: 450, maxHeight: 450 }
+    innerBounds: { width: 900, height: 450}
   });
 
 }

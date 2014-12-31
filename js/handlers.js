@@ -144,7 +144,7 @@ var satnetClient = function() {
 			terminal.log('Please, select a ground station');
 			return;
 		}
-				
+
 		var path = serialPortSel.options[serialPortSel.selectedIndex].value;
 		var baudrate = baudRateInp.value;
 		disconnectBtn.classList.remove('pure-button-disabled');
