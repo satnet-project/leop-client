@@ -21,7 +21,11 @@
 var satnetClient = function() {
 
 	var rpc_url = 'http://172.19.51.170:8000/jrpc/';
-	this.rpc = new JsonRPC(rpc_url, { methods: ['system.login', 'system.logout', [ 'communications.gs.storePassiveMessage', false ]] });
+	this.rpc = new JsonRPC(rpc_url, { methods: 
+		['system.login',
+		 'system.logout',
+		 [ 'communications.gs.storePassiveMessage', false ],
+		 'configuration.gs.list'] });
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
 	this.connectionInfo = null;
@@ -30,11 +34,31 @@ var satnetClient = function() {
 	var serialPortSel = document.getElementById('serialPortSel');
 	var baudRateSel = document.getElementById('baudRateSel');
 	var baudRateInp = document.getElementById('baudRateInp');
+	var groundStationSel = document.getElementById('groundStationSel');
 	var connectBtn = document.getElementById('connectBtn');
 	var disconnectBtn = document.getElementById('disconnectBtn');
 	var refreshPortsBtn = document.getElementById('refreshPortsBtn');
 
-	// Refreshes list of serial devices in main window
+	// Refreshes the list of GS stations in main window. Called after log in
+	// from login_handlers
+	this.refreshGS = function() {
+		satnet.rpc.configuration.gs.list()
+			.onSuccess(function(result) {
+				terminal.log("Successfully downloaded GS list");
+				terminal.log(result);			
+
+				for (var i = 0; i < result.length; i++) {
+					var option = document.createElement('option');
+					option.text = result[i];
+					groundStationSel.add(option);
+				}
+			})
+			//.onException()
+			//.onComplete()
+			.execute();		
+	}
+
+	// Refreshes the list of serial devices in main window
 	this.refreshDevices = function() {
 		chrome.serial.getDevices(function(ports) {
 			while (serialPortSel.length > 1) {
@@ -147,7 +171,5 @@ var satnetClient = function() {
 var satnet;
 document.addEventListener("DOMContentLoaded", function(event) { 
 	satnet = new satnetClient();
-
-	satnet.refreshDevices();
 	terminal.log('Welcome to SATNet Client!');
 });

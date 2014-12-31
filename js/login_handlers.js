@@ -27,10 +27,16 @@ var passwordInp = document.getElementById('passwordInp');
 // Callback to deal with SIGN IN button
 function signIn() {
 	satnet.rpc.system.login([ usernameInp.value, passwordInp.value ])
-		.onSuccess(function() {
-			terminal.log("Successfully logged in");
-			document.getElementById("login").style.display = "none";
-			document.getElementById("main").style.display = "block";
+		.onSuccess(function(result) {
+			if (result) {
+				terminal.log("Successfully logged in");
+				document.getElementById("login").style.display = "none";
+				document.getElementById("main").style.display = "block";
+				satnet.refreshDevices();
+				satnet.refreshGS();
+			} else {
+				terminal.log("Email/password incorrect")
+			}	
 		})
 		//.onException()
 		//.onComplete()
@@ -41,10 +47,14 @@ function signIn() {
 // Callback to deal with LOG OUT button
 function signOut() {
 	satnet.rpc.system.logout()
-		.onSuccess(function() {	
-			terminal.log("Successfully logged out");
-			document.getElementById("login").style.display = "block";
-			document.getElementById("main").style.display = "none";
+		.onSuccess(function() {
+			if (result) {	
+				terminal.log("Successfully logged out");
+				document.getElementById("login").style.display = "block";
+				document.getElementById("main").style.display = "none";
+			} else {
+				terminal.log("Error when logging out. Try again later");
+			}	
 		})
 		//.onException()
 		//.onComplete()
