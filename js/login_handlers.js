@@ -41,8 +41,7 @@ function signIn() {
 				}
 				document.getElementById("login").style.display = "none";
 				document.getElementById("main").style.display = "block";
-				satnet.refreshDevices();
-				satnet.refreshGS();
+				satnet.initialize();
 
 				//Modify username at the footer 
 				//(http://stackoverflow.com/questions/4784568/set-content-of-html-span-with-javascript)

@@ -24,7 +24,7 @@ var satnetClient = function() {
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
 		 'system.logout',
-		 [ 'communications.gs.storePassiveMessage', false ],
+		 'communications.gs.storePassiveMessage',
 		 'configuration.gs.list'] });
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
@@ -45,12 +45,17 @@ var satnetClient = function() {
 	var connectBtn = document.getElementById('connectBtn');
 	var disconnectBtn = document.getElementById('disconnectBtn');
 
+
+	this.initialize = function() {
+		refreshGS();
+		refreshDevices();		
+	}
 	/********************************
 	* Event callbacks
 	*********************************/
 	// Refreshes the list of GS stations in main window. Called after log in
 	// from login_handlers
-	this.refreshGS = function() {
+	var refreshGS = function() {
 		while (groundStationSel.length > 1) {
 			groundStationSel.remove(1);
 		}		
@@ -64,6 +69,19 @@ var satnetClient = function() {
 					option.text = result[i];
 					groundStationSel.add(option);
 				}
+				chrome.storage.local.get(["groundStation"], function (items) {
+					// If the GS is available select saved value
+					if (items.groundStation) {
+						for (i=0 ; i < groundStationSel.length ; i++) {
+							if (groundStationSel[i].value == items.groundStation) {
+								groundStationSel.selectedIndex = i;
+								terminal.log('Ground station ' + items.groundStation + ' found');					
+								break;
+							}
+						}
+					}
+				});		
+
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
@@ -71,7 +89,7 @@ var satnetClient = function() {
 	}
 
 	// Refreshes the list of serial devices in main window
-	this.refreshDevices = function() {
+	var refreshDevices = function() {
 		chrome.serial.getDevices(function(ports) {
 			while (serialPortSel.length > 1) {
 				serialPortSel.remove(1);
@@ -83,6 +101,22 @@ var satnetClient = function() {
 				serialPortSel.add(option);
 			}
 		});
+		chrome.storage.local.get(["serialPort", "baudRate"], function (items) {
+			// If the port is available select saved value
+			if (items.serialPort && items.baudRate) {
+				for (i=0 ; i < serialPortSel.length ; i++) {
+					if (serialPortSel[i].value == items.serialPort) {
+						terminal.log('Serial port ' +items.serialPort + ' found');
+						serialPortSel.selectedIndex = i;
+						break;
+					}
+				}
+				baudRateSel.style.display = "none";
+				baudRateInp.style.display = "block";
+				baudRateInp.value = items.baudRate;
+			}
+		});		
+
 	}
 
 	// Callback to deal with 'CONNECT' button
@@ -99,6 +133,10 @@ var satnetClient = function() {
 			terminal.log('Serial port : ' + satnetConnection.serialPort);
 			terminal.log('Baud rate : ' + satnetConnection.baudRate);
 			terminal.log('Ground Station : ' + satnetConnection.groundStation);
+			chrome.storage.local.set({'serialPort': satnetConnection.serialPort, 
+				'baudRate': satnetConnection.baudRate, 'groundStation': satnetConnection.groundStation }, function() {
+   					terminal.log('Connection parameters saved');
+   			});
 
 			connectionInfo = connInfo;
 			connectBtn.classList.add('button-success');
@@ -141,8 +179,6 @@ var satnetClient = function() {
 		closeConnection(info.connectionId);
 		getDevices();
 	};
-	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
-
 
 	function closeConnection(connectionId) {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
@@ -213,6 +249,9 @@ var satnetClient = function() {
 
 	refreshPortsBtn.addEventListener('click', this.refreshDevices);
 	refreshGroundStationsBtn.addEventListener('click', this.refreshGS);
+
+	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
+
 }
 
 // Create instance of satnet client on document ready
