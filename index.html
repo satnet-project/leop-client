@@ -55,11 +55,17 @@
 						<input id="baudRateInp" type="text" placeholder="Select baud rate...">
 					</fieldset>
 					<fieldset>
-						<select id="groundStationSel">
-							<option value="not_selected">Select a GS...</option>
-						</select>
-						<input id="baudRateInp" type="text" placeholder="Select baud rate...">
-					</fieldset>					
+						<div class="pure-g">
+							<div class="pure-u-4-5">
+								<select id="groundStationSel" >
+									<option value="not_selected">Select port...</option>
+								</select>
+							</div>
+							<div class="pure-u-1-5">
+								<button class="button-large pure-button" id="refreshGroundStationsBtn"><i class="fa fa-refresh"></i></button>
+							</div>
+						</div>
+					</fieldset>
 				</form>
 				<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
 				<button class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>

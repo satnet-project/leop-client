@@ -28,7 +28,7 @@ var satnetClient = function() {
 		 'configuration.gs.list'] });
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
-	this.connectionInfo = null;
+	var connectionInfo = null;
 
 	// Elements in DOM
 	var serialPortSel = document.getElementById('serialPortSel');
@@ -38,14 +38,18 @@ var satnetClient = function() {
 	var connectBtn = document.getElementById('connectBtn');
 	var disconnectBtn = document.getElementById('disconnectBtn');
 	var refreshPortsBtn = document.getElementById('refreshPortsBtn');
+	var refreshGroundStationsBtn = document.getElementById('refreshGroundStationsBtn');
 
 	// Refreshes the list of GS stations in main window. Called after log in
 	// from login_handlers
 	this.refreshGS = function() {
+		while (groundStationSel.length > 1) {
+			groundStationSel.remove(1);
+		}		
 		satnet.rpc.configuration.gs.list()
 			.onSuccess(function(result) {
-				terminal.log("Successfully downloaded GS list");
-				terminal.log(result);			
+				terminal.log(result.length + " ground stations were found");
+				if (!result.length) terminal.log("Please, create a GS through SATNET website");
 
 				for (var i = 0; i < result.length; i++) {
 					var option = document.createElement('option');
@@ -55,8 +59,9 @@ var satnetClient = function() {
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
-			.execute();		
+			.execute();
 	}
+	refreshGroundStationsBtn.addEventListener('click', this.refreshGS);
 
 	// Refreshes the list of serial devices in main window
 	this.refreshDevices = function() {
@@ -64,6 +69,7 @@ var satnetClient = function() {
 			while (serialPortSel.length > 1) {
 				serialPortSel.remove(1);
 			}
+			terminal.log(ports.length + " serial devices were found");
 			for (var i = 0; i < ports.length; i++) {
 				var option = document.createElement('option');
 				option.text = ports[i].path;
@@ -71,6 +77,7 @@ var satnetClient = function() {
 			}
 		});
 	}
+	refreshPortsBtn.addEventListener('click', this.refreshDevices);
 
 	// Callback to deal with 'CONNECT' button
 	var onConnect = function(connInfo) {
@@ -82,7 +89,7 @@ var satnetClient = function() {
 				connectBtn.classList.remove('button-error');
 			}, 1000);
 		} else {
-			terminal.log('Connection succeeded (ID: ' + connInfo.connectionId + ')');
+			terminal.log('Succesful serial connection (ID ' + connInfo.connectionId + ')');
 			connectionInfo = connInfo;
 			connectBtn.classList.add('button-success');
 			connectBtn.classList.add('pure-button-disabled');
@@ -94,9 +101,9 @@ var satnetClient = function() {
 	// Callback to deal with DISCONNECT button
 	var onDisconnect = function(result) {
 		if (result) {
-			connectionClosed(connectionId);
+			closeConnection(connectionInfo.connectionId);
 		} else {
-			terminal.log('Connection with ID ' + connectionId + ' could not be closed');
+			terminal.log('Connection with ID ' + connectionInfo.connectionId + ' could not be closed');
 		}
 	}
 
@@ -113,13 +120,13 @@ var satnetClient = function() {
 
 	// Callback to attend serial port events
 	var onReceiveErrorCallback = function(info) {
-		connectionClosed(info.connectionId);
+		closeConnection(info.connectionId);
 		getDevices();
 	};
 	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
 
 
-	function connectionClosed(connectionId) {
+	function closeConnection(connectionId) {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
 		disconnectBtn.classList.add('pure-button-disabled');
 		connectBtn.innerHTML = 'CONNECT';
@@ -165,11 +172,9 @@ var satnetClient = function() {
 
 	disconnectBtn.addEventListener('click', function (e) {
 		if (disconnectBtn.classList.contains('pure-button-disabled')) return;
-		chrome.serial.disconnect(connectionId, onDisconnect);
+		chrome.serial.disconnect(connectionInfo.connectionId, onDisconnect);
 	});
-
 }
-
 
 // Create instance of satnet client on document ready
 var satnet;
