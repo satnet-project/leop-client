@@ -94,6 +94,7 @@ a:visited {
 }
 
 select {
+	border: 0 !important;
 	background-color: #e6e6e6 !important;
 }
 

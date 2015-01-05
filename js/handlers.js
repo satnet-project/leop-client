@@ -29,17 +29,25 @@ var satnetClient = function() {
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
 	var connectionInfo = null;
+	var satnetConnection = {
+		serialPort:null,
+		baudRate:null,
+		groundStation:null
+	};
 
 	// Elements in DOM
 	var serialPortSel = document.getElementById('serialPortSel');
+	var refreshPortsBtn = document.getElementById('refreshPortsBtn');	
 	var baudRateSel = document.getElementById('baudRateSel');
 	var baudRateInp = document.getElementById('baudRateInp');
 	var groundStationSel = document.getElementById('groundStationSel');
+	var refreshGroundStationsBtn = document.getElementById('refreshGroundStationsBtn');
 	var connectBtn = document.getElementById('connectBtn');
 	var disconnectBtn = document.getElementById('disconnectBtn');
-	var refreshPortsBtn = document.getElementById('refreshPortsBtn');
-	var refreshGroundStationsBtn = document.getElementById('refreshGroundStationsBtn');
 
+	/********************************
+	* Event callbacks
+	*********************************/
 	// Refreshes the list of GS stations in main window. Called after log in
 	// from login_handlers
 	this.refreshGS = function() {
@@ -48,7 +56,7 @@ var satnetClient = function() {
 		}		
 		satnet.rpc.configuration.gs.list()
 			.onSuccess(function(result) {
-				terminal.log(result.length + " ground stations were found");
+				terminal.log(result.length + " ground station(s) was(were) found");
 				if (!result.length) terminal.log("Please, create a GS through SATNET website");
 
 				for (var i = 0; i < result.length; i++) {
@@ -61,7 +69,6 @@ var satnetClient = function() {
 			//.onComplete()
 			.execute();
 	}
-	refreshGroundStationsBtn.addEventListener('click', this.refreshGS);
 
 	// Refreshes the list of serial devices in main window
 	this.refreshDevices = function() {
@@ -69,7 +76,7 @@ var satnetClient = function() {
 			while (serialPortSel.length > 1) {
 				serialPortSel.remove(1);
 			}
-			terminal.log(ports.length + " serial devices were found");
+			terminal.log(ports.length + " serial device(s) was(were) found");
 			for (var i = 0; i < ports.length; i++) {
 				var option = document.createElement('option');
 				option.text = ports[i].path;
@@ -77,7 +84,6 @@ var satnetClient = function() {
 			}
 		});
 	}
-	refreshPortsBtn.addEventListener('click', this.refreshDevices);
 
 	// Callback to deal with 'CONNECT' button
 	var onConnect = function(connInfo) {
@@ -90,10 +96,22 @@ var satnetClient = function() {
 			}, 1000);
 		} else {
 			terminal.log('Succesful serial connection (ID ' + connInfo.connectionId + ')');
+			terminal.log('Serial port : ' + satnetConnection.serialPort);
+			terminal.log('Baud rate : ' + satnetConnection.baudRate);
+			terminal.log('Ground Station : ' + satnetConnection.groundStation);
+
 			connectionInfo = connInfo;
 			connectBtn.classList.add('button-success');
-			connectBtn.classList.add('pure-button-disabled');
 			connectBtn.innerHTML = 'CONNECTED';
+			// Disable parameter changes while connected
+			disableElement(connectBtn);
+			disableElement(serialPortSel);
+			disableElement(refreshPortsBtn);
+			disableElement(baudRateSel);
+			disableElement(baudRateInp);
+			disableElement(groundStationSel);
+			disableElement(refreshGroundStationsBtn);
+
 			chrome.serial.onReceive.addListener(onReceiveCallback);
 		}
 	}
@@ -131,13 +149,29 @@ var satnetClient = function() {
 		disconnectBtn.classList.add('pure-button-disabled');
 		connectBtn.innerHTML = 'CONNECT';
 		connectBtn.classList.remove('button-success');
-		connectBtn.classList.remove('pure-button-disabled');	
+		// Enable parameter changes
+		enableElement(connectBtn);
+		enableElement(serialPortSel);
+		enableElement(refreshPortsBtn);
+		enableElement(baudRateSel);
+		enableElement(baudRateInp);
+		enableElement(groundStationSel);
+		enableElement(refreshGroundStationsBtn);
 	}
 
-
+	function disableElement(element) {
+		element.disabled = true;
+		element.classList.add('pure-button-disabled');
+	}
+	
+	function enableElement(element) {
+		element.disabled = false;
+		element.classList.remove('pure-button-disabled');
+	}	
+	/********************************
+	* Event listeners
+	*********************************/
 	connectBtn.addEventListener('click', function (e) {
-		// If the connection is already active
-		if (connectBtn.classList.contains('pure-button-disabled')) return;
 		// Check if either the baud rate or the port id is not selected
 		if (serialPortSel.selectedIndex == 0) {
 			terminal.log('Please, select the TNC serial port');
@@ -155,6 +189,9 @@ var satnetClient = function() {
 		var path = serialPortSel.options[serialPortSel.selectedIndex].value;
 		var baudrate = baudRateInp.value;
 		disconnectBtn.classList.remove('pure-button-disabled');
+		satnetConnection.serialPort = path;
+		satnetConnection.baudRate = Math.round(baudrate);
+		satnetConnection.groundStation = groundStationSel.options[groundStationSel.selectedIndex].value;
 		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
 	});
 
@@ -171,9 +208,11 @@ var satnetClient = function() {
 	});
 
 	disconnectBtn.addEventListener('click', function (e) {
-		if (disconnectBtn.classList.contains('pure-button-disabled')) return;
 		chrome.serial.disconnect(connectionInfo.connectionId, onDisconnect);
 	});
+
+	refreshPortsBtn.addEventListener('click', this.refreshDevices);
+	refreshGroundStationsBtn.addEventListener('click', this.refreshGS);
 }
 
 // Create instance of satnet client on document ready
