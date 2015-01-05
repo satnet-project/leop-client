@@ -22,6 +22,7 @@ var signInBtn = document.getElementById('signInBtn');
 var logOutBtn = document.getElementById('logOutBtn');
 var usernameInp = document.getElementById('usernameInp');
 var passwordInp = document.getElementById('passwordInp');
+var rememberUser = document.getElementById('rememberUser');
 
 
 // Callback to deal with SIGN IN button
@@ -30,6 +31,14 @@ function signIn() {
 		.onSuccess(function(result) {
 			if (result) {
 				terminal.log("Successfully logged in");
+				if (rememberUser.checked) {
+					chrome.storage.local.set({'email': usernameInp.value, 'password': passwordInp.value}, function() {
+          				terminal.log('User credentials saved');
+        			});
+				} else {
+					usernameInp.value = "";
+					passwordInp.value = "";
+				}
 				document.getElementById("login").style.display = "none";
 				document.getElementById("main").style.display = "block";
 				satnet.refreshDevices();
@@ -91,4 +100,12 @@ usernameInp.addEventListener('keypress', function (e) {
 passwordInp.addEventListener('keypress', function (e) {
 	if (e.keyCode == 13 || e.which == 13)
 		signIn();
+});
+
+chrome.storage.local.get(["email", "password"], function (items) {
+	if (items.email && items.password) {
+		usernameInp.value = items.email;
+		passwordInp.value = items.password;
+		rememberUser.checked = true;
+	}
 });

@@ -26,7 +26,7 @@
     "48": "assets/satnet_48_test.png",
     "16": "assets/satnet_16.png"   
   },
-  "permissions": ["serial", "http://*/"],
+  "permissions": ["serial", "storage", "http://*/"],
   "app": {
     "background": {
       "scripts": ["background.js"]
