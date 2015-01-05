@@ -25,14 +25,16 @@ var satnetClient = function() {
 		['system.login',
 		 'system.logout',
 		 'communications.gs.storePassiveMessage',
-		 'configuration.gs.list'] });
+		 'configuration.gs.list',
+		 'configuration.gs.getChannels'] });
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
 	var connectionInfo = null;
 	var satnetConnection = {
 		serialPort:null,
 		baudRate:null,
-		groundStation:null
+		groundStation:null,
+		channel:null
 	};
 
 	// Elements in DOM
@@ -60,32 +62,59 @@ var satnetClient = function() {
 			groundStationSel.remove(1);
 		}		
 		satnet.rpc.configuration.gs.list()
-			.onSuccess(function(result) {
-				terminal.log(result.length + " ground station(s) was(were) found");
-				if (!result.length) terminal.log("Please, create a GS through SATNET website");
-
-				for (var i = 0; i < result.length; i++) {
-					var option = document.createElement('option');
-					option.text = result[i];
-					groundStationSel.add(option);
-				}
-				chrome.storage.local.get(["groundStation"], function (items) {
-					// If the GS is available select saved value
-					if (items.groundStation) {
-						for (i=0 ; i < groundStationSel.length ; i++) {
-							if (groundStationSel[i].value == items.groundStation) {
-								groundStationSel.selectedIndex = i;
-								terminal.log('Ground station ' + items.groundStation + ' found');					
-								break;
-							}
-						}
-					}
-				});		
-
-			})
+			.onSuccess(onGetGSlist)
 			.onException(jsonRPCerror)
 			//.onComplete()
 			.execute();
+	}
+
+	var onGetGSlist = function(result) {
+		terminal.log(result.length + " ground station(s) was(were) found");
+		if (!result.length) terminal.log("Please, create a GS through SATNET website");
+		for (var i = 0; i < result.length; i++) {
+			var option = document.createElement('option');
+			option.text = result[i];
+			groundStationSel.add(option);
+		}
+		chrome.storage.local.get(["groundStation"], function (items) {
+			// If the GS is available select saved value
+			if (items.groundStation) {
+				for (i=0 ; i < groundStationSel.length ; i++) {
+					if (groundStationSel[i].value == items.groundStation) {
+						groundStationSel.selectedIndex = i;
+						terminal.log('Ground station ' + items.groundStation + ' found');
+						satnet.rpc.configuration.gs.getChannels(items.groundStation)
+							.onSuccess(onGetChannelList)
+							.onException(jsonRPCerror)
+							//.onComplete()
+							.execute();
+						break;
+					}
+				}
+			}
+		});		
+	}
+
+	var onGetChannelList = function(result) {
+		terminal.log(result.length + " channel(s) was(were) found for this GS");
+		if (!result.length) terminal.log("Please, create a GS through SATNET website");
+		for (var i = 0; i < result.length; i++) {
+			var option = document.createElement('option');
+			option.text = result[i];
+			groundStationSel.add(option);
+		}
+		chrome.storage.local.get(["channel"], function (items) {
+			// If the GS is available select saved value
+			if (items.channel) {
+				for (i=0 ; i < channelSel.length ; i++) {
+					if (channelSel[i].value == items.channel) {
+						channelSel.selectedIndex = i;
+						terminal.log('Channel ' + items.channel + ' found');					
+						break;
+					}
+				}
+			}
+		});		
 	}
 
 	// Refreshes the list of serial devices in main window
@@ -116,7 +145,6 @@ var satnetClient = function() {
 				baudRateInp.value = items.baudRate;
 			}
 		});		
-
 	}
 
 	// Callback to deal with 'CONNECT' button
@@ -133,8 +161,9 @@ var satnetClient = function() {
 			terminal.log('Serial port : ' + satnetConnection.serialPort);
 			terminal.log('Baud rate : ' + satnetConnection.baudRate);
 			terminal.log('Ground Station : ' + satnetConnection.groundStation);
-			chrome.storage.local.set({'serialPort': satnetConnection.serialPort, 
-				'baudRate': satnetConnection.baudRate, 'groundStation': satnetConnection.groundStation }, function() {
+			terminal.log('Channel : ' + satnetConnection.channel);			
+			chrome.storage.local.set({'serialPort': satnetConnection.serialPort, 'baudRate': satnetConnection.baudRate,
+			 'groundStation': satnetConnection.groundStation, 'channel': satnetConnection.channel }, function() {
    					terminal.log('Connection parameters saved');
    			});
 
@@ -149,6 +178,8 @@ var satnetClient = function() {
 			disableElement(baudRateInp);
 			disableElement(groundStationSel);
 			disableElement(refreshGroundStationsBtn);
+			disableElement(channelSel);
+			disableElement(refreshChannelBtn);
 
 			chrome.serial.onReceive.addListener(onReceiveCallback);
 		}
@@ -193,6 +224,8 @@ var satnetClient = function() {
 		enableElement(baudRateInp);
 		enableElement(groundStationSel);
 		enableElement(refreshGroundStationsBtn);
+		enableElement(channelSel);
+		enableElement(refreshChannelBtn);
 	}
 
 	function disableElement(element) {
@@ -221,13 +254,17 @@ var satnetClient = function() {
 			terminal.log('Please, select a ground station');
 			return;
 		}
-
+		if (channelSel.selectedIndex == 0) {
+			terminal.log('Please, select a channel');
+			return;
+		}
 		var path = serialPortSel.options[serialPortSel.selectedIndex].value;
 		var baudrate = baudRateInp.value;
 		disconnectBtn.classList.remove('pure-button-disabled');
 		satnetConnection.serialPort = path;
 		satnetConnection.baudRate = Math.round(baudrate);
-		satnetConnection.groundStation = groundStationSel.options[groundStationSel.selectedIndex].value;
+		satnetConnection.groundStation = groundStationSel.[groundStationSel.selectedIndex].value;
+		satnetConnection.channel = channelSel.[channelSel.selectedIndex].value;
 		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
 	});
 
@@ -240,6 +277,27 @@ var satnetClient = function() {
 			baudRateInp.style.display = "block";
 		} else {
 			baudRateInp.value = baudRateSel.value;
+		}
+	});
+
+	groundStationSel.addEventListener('change', function() {
+		// Search for the corresponding channels to a GS
+		if (groundStationSel.selectedIndex > 0) {
+			satnet.rpc.configuration.gs.getChannels(groundStationSel[groundStationSel.selectedIndex].value)
+				.onSuccess(onGetChannelList)
+				.onException(jsonRPCerror)
+				//.onComplete()
+				.execute();
+		}
+	});
+
+	refreshChannelBtn.addEventListener('click', function() {
+		if (groundStationSel.selectedIndex > 0) {
+			satnet.rpc.configuration.gs.getChannels(groundStationSel[groundStationSel.selectedIndex].value)
+				.onSuccess(onGetChannelList)
+				.onException(jsonRPCerror)
+				//.onComplete()
+				.execute();
 		}
 	});
 
