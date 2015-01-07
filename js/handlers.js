@@ -143,6 +143,7 @@ var satnetClient = function() {
 			connectBtn.innerHTML = 'CONNECTED';
 			// Disable parameter changes while connected
 			disableElement(connectBtn);
+			enableElement(disconnectBtn);
 			disableElement(serialPortSel);
 			disableElement(refreshPortsBtn);
 			disableElement(baudRateSel);
@@ -176,6 +177,7 @@ var satnetClient = function() {
 
 		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
 			.onSuccess(function(result) {
+				terminal.log(result);
 				if (result)
 					terminal.log('Message succesfully stored');
 			})
@@ -197,6 +199,7 @@ var satnetClient = function() {
 		connectBtn.classList.remove('button-success');
 		// Enable parameter changes
 		enableElement(connectBtn);
+		disableElement(disconnectBtn);
 		enableElement(serialPortSel);
 		enableElement(refreshPortsBtn);
 		enableElement(baudRateSel);
