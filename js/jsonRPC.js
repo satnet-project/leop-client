@@ -140,12 +140,18 @@ https://github.com/Mtnt/jsonRPC.js
 			return true;
 		}
 
-		if (responseCode == 200 && responseMessage.hasOwnProperty('result')) {
+		//if (responseCode == 200 && responseMessage.hasOwnProperty('result')) {
+		// Replace by the line above when the issue 32	of RPC4Django (https://github.com/davidfischer/rpc4django/issues/32)
+		// gets solved
+		if (responseCode == 200 && responseMessage.result != null) {			
 			if (request.successHandler(responseMessage.result)) {
 				return true;
 			}
 		} else {
-			if (responseCode != 200 || responseMessage.hasOwnProperty('error')) {
+			//if (responseCode != 200 || responseMessage.hasOwnProperty('error')) {
+			// Replace by the line above when the issue 32	of RPC4Django (https://github.com/davidfischer/rpc4django/issues/32)
+			// gets solved				
+			if (responseCode != 200 || responseMessage.error != null) {				
 				var exception = {};
 				if (responseCode != 200) {
 					exception.code    = responseCode;
