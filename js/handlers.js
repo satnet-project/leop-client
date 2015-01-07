@@ -171,7 +171,17 @@ var satnetClient = function() {
 	};
 
 	function onReceiveFrameCallback(frame) {
-		terminal.log('New frame received: ' + frame);
+		var b64_frame = btoa(String.fromCharCode.apply(null, frame));
+		terminal.log('New frame received: ' + b64_frame);
+
+		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
+			.onSuccess(function(result) {
+				if (result)
+					terminal.log('Message succesfully stored');
+			})
+			.onException(jsonRPCerror)
+			//.onComplete()
+			.execute();
 	};
 
 	// Callback to attend serial port events
@@ -227,7 +237,7 @@ var satnetClient = function() {
 		disconnectBtn.classList.remove('pure-button-disabled');
 		satnetConnection.serialPort = path;
 		satnetConnection.baudRate = Math.round(baudrate);
-		satnetConnection.groundStation = groundStationSel.options[groundStationSel.selectedIndex].value;
+		satnetConnection.groundStation = groundStationSel[groundStationSel.selectedIndex].value;
 		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
 	});
 
