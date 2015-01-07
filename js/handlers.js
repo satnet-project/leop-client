@@ -20,6 +20,7 @@
 
 var satnetClient = function() {
 
+	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
 	var rpc_url = 'http://172.19.51.170:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
@@ -55,7 +56,7 @@ var satnetClient = function() {
 	*********************************/
 	// Refreshes the list of GS stations in main window. Called after log in
 	// from login_handlers
-	var refreshGS = function() {
+	function refreshGS() {
 		while (groundStationSel.length > 1) {
 			groundStationSel.remove(1);
 		}		
@@ -75,7 +76,6 @@ var satnetClient = function() {
 						for (i=0 ; i < groundStationSel.length ; i++) {
 							if (groundStationSel[i].value == items.groundStation) {
 								groundStationSel.selectedIndex = i;
-								terminal.log('Ground station ' + items.groundStation + ' found');					
 								break;
 							}
 						}
@@ -89,7 +89,7 @@ var satnetClient = function() {
 	}
 
 	// Refreshes the list of serial devices in main window
-	var refreshDevices = function() {
+	function refreshDevices() {
 		chrome.serial.getDevices(function(ports) {
 			while (serialPortSel.length > 1) {
 				serialPortSel.remove(1);
@@ -165,12 +165,12 @@ var satnetClient = function() {
 
 	// Callback to read from serial port
 	var onReceiveCallback = function(info) {
-		if (info.data && info.connectionId == connectionId) {
+		if (info.data && info.connectionId == connectionInfo.connectionId) {
 			kissparser.update(info.data);
 		}
 	};
 
-	var onReceiveFrameCallback = function(frame) {
+	function onReceiveFrameCallback(frame) {
 		terminal.log('New frame received: ' + frame);
 	};
 
@@ -247,8 +247,8 @@ var satnetClient = function() {
 		chrome.serial.disconnect(connectionInfo.connectionId, onDisconnect);
 	});
 
-	refreshPortsBtn.addEventListener('click', this.refreshDevices);
-	refreshGroundStationsBtn.addEventListener('click', this.refreshGS);
+	refreshPortsBtn.addEventListener('click', refreshDevices);
+	refreshGroundStationsBtn.addEventListener('click', refreshGS);
 
 	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
 
