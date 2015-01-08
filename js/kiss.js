@@ -86,7 +86,9 @@ var kissParser = function(cb) {
 							newByte = constants.KISS_FRAME_ESCAPE;
 						} else {
 							this.state = states.NOSYNC;
+							break;
 						}
+						this.frame[this.frameLen++] = newByte;					
 					} else {
 						if (newByte == constants.KISS_FRAME_ESCAPE) this.escaped = true;
 						else this.frame[this.frameLen++] = newByte;
