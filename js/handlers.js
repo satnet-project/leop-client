@@ -20,7 +20,7 @@
 
 var satnetClient = function() {
 
-	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
+	//var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
 	var rpc_url = 'http://172.19.51.170:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
@@ -151,7 +151,6 @@ var satnetClient = function() {
 			disableElement(groundStationSel);
 			disableElement(refreshGroundStationsBtn);
 
-			chrome.serial.onReceive.addListener(onReceiveCallback);
 		}
 	}
 
@@ -170,16 +169,15 @@ var satnetClient = function() {
 			kissparser.update(info.data);
 		}
 	};
-
+	
 	function onReceiveFrameCallback(frame) {
 		var b64_frame = btoa(String.fromCharCode.apply(null, frame));
-		terminal.log('New frame received: ' + b64_frame);
+		terminal.log('FRAME RECEIVED  >>>>>>>>>  ' + b64_frame);
 
 		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
 			.onSuccess(function(result) {
-				terminal.log(result);
 				if (result)
-					terminal.log('Message succesfully stored');
+					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
@@ -192,8 +190,16 @@ var satnetClient = function() {
 		getDevices();
 	};
 
+	// Callback corresponding to a flush event
+	function onFlush(result) {
+		if (result) terminal.log('Serial port successfully flushed');
+		else terminal.log('Nothing to flush');		
+	}
+
 	function closeConnection(connectionId) {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
+		chrome.serial.flush(connectionInfo.connectionId, onFlush);
+		connectionInfo = null;
 		disconnectBtn.classList.add('pure-button-disabled');
 		connectBtn.innerHTML = 'CONNECT';
 		connectBtn.classList.remove('button-success');
@@ -241,7 +247,10 @@ var satnetClient = function() {
 		satnetConnection.serialPort = path;
 		satnetConnection.baudRate = Math.round(baudrate);
 		satnetConnection.groundStation = groundStationSel[groundStationSel.selectedIndex].value;
-		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);
+		kissparser = new kissParser(onReceiveFrameCallback);
+		chrome.serial.onReceive.addListener(onReceiveCallback);
+		chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
+		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);		
 	});
 
 	// Handling baud rate selection, if the selected option is 'Other'
@@ -257,14 +266,13 @@ var satnetClient = function() {
 	});
 
 	disconnectBtn.addEventListener('click', function (e) {
+		chrome.serial.onReceive.removeListener(onReceiveCallback);
+		chrome.serial.onReceiveError.removeListener(onReceiveErrorCallback);
 		chrome.serial.disconnect(connectionInfo.connectionId, onDisconnect);
 	});
 
 	refreshPortsBtn.addEventListener('click', refreshDevices);
 	refreshGroundStationsBtn.addEventListener('click', refreshGS);
-
-	chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
-
 }
 
 // Create instance of satnet client on document ready
