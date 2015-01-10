@@ -24,7 +24,6 @@ var usernameInp = document.getElementById('usernameInp');
 var passwordInp = document.getElementById('passwordInp');
 var rememberUser = document.getElementById('rememberUser');
 
-
 // Callback to deal with SIGN IN button
 function signIn() {
 	satnet.rpc.system.login([ usernameInp.value, passwordInp.value ])
@@ -108,3 +107,9 @@ chrome.storage.local.get(["email", "password"], function (items) {
 		rememberUser.checked = true;
 	}
 });
+
+var appVersionSpan = document.getElementById('appVersionSpan');
+while( appVersionSpan.firstChild ) {
+    appVersionSpan.removeChild( appVersionSpan.firstChild );
+}
+appVersionSpan.appendChild(document.createTextNode(chrome.runtime.getManifest().version));

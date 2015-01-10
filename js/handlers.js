@@ -20,8 +20,8 @@
 
 var satnetClient = function() {
 
-	//var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
-	var rpc_url = 'http://172.19.51.170:8000/jrpc/';
+	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
+	//var rpc_url = 'http://172.19.51.170:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
 		 'system.logout',
