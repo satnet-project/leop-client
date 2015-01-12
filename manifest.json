@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "SATNet LEOP Client",
-  "version": "0.21",
+  "version": "0.22",
   "description": "This app retreives passive data for the SATNET network to support LEOP operations",
   "icons": {
     "128": "assets/satnet_128.png",

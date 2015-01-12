@@ -19,16 +19,24 @@
 	*/
 
 var Terminal = function() {
-
 	var terminalElem = document.getElementById('terminal');
+	var terminalBox = document.getElementById('terminalbox');
 
-	this.log = function(text) {
-		console.log(text);
+	// ERROR_MSG is an optional parameter. Should be 1 to highlight 
+	// the message as an error
+	this.log = function(text, ERROR_MSG) {
+		if (ERROR_MSG == undefined) {
+			ERROR_MSG = 0;
+		}
+		//console.log(text);
 		var date = new Date();
 		var line = '[' + date.toUTCString() + '] ' + text;
 		var li = document.createElement("li");
 		li.appendChild(document.createTextNode(line));
+		if (ERROR_MSG) li.classList.add("errorMsg");
 		terminalElem.appendChild(li);
+
+		terminalBox.scrollTop = terminalBox.scrollHeight;
 	}
 
 }

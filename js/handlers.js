@@ -21,7 +21,7 @@
 var satnetClient = function() {
 
 	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
-	//var rpc_url = 'http://172.19.51.170:8000/jrpc/';
+	//var rpc_url = 'http://127.0.0.1:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
 		 'system.logout',
@@ -35,6 +35,10 @@ var satnetClient = function() {
 		baudRate:null,
 		groundStation:null
 	};
+
+	// Vars for testing purposes
+	var framesReceived = 0;
+	var framesStored = 0;
 
 	// Elements in DOM
 	var serialPortSel = document.getElementById('serialPortSel');
@@ -173,11 +177,14 @@ var satnetClient = function() {
 	function onReceiveFrameCallback(frame) {
 		var b64_frame = btoa(String.fromCharCode.apply(null, frame));
 		terminal.log('FRAME RECEIVED  >>>>>>>>>  ' + b64_frame);
+		framesReceived++;
 
 		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
 			.onSuccess(function(result) {
-				if (result)
+				if (result) {
 					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
+					framesStored++;
+				}			
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
@@ -198,6 +205,12 @@ var satnetClient = function() {
 
 	function closeConnection(connectionId) {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
+		terminal.log('Frames received: ' + framesReceived);
+		terminal.log('Frames stored:   ' + framesStored);
+		if (framesReceived > 0 && framesReceived/framesStored != 1) terminal.log('STORAGE ERROR', 1);
+		framesStored = 0;
+		framesReceived = 0;
+
 		chrome.serial.flush(connectionInfo.connectionId, onFlush);
 		connectionInfo = null;
 		disconnectBtn.classList.add('pure-button-disabled');

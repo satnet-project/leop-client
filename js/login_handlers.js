@@ -49,7 +49,7 @@ function signIn() {
 				}
 				span.appendChild( document.createTextNode(usernameInp.value) )
 			} else {
-				terminal.log("Email/password incorrect")
+				terminal.log("Email/password incorrect", 1)
 			}	
 		})
 		.onException(jsonRPCerror)
@@ -66,7 +66,7 @@ function signOut() {
 				document.getElementById("login").style.display = "block";
 				document.getElementById("main").style.display = "none";
 			} else {
-				terminal.log("Error when logging out. Try again later");
+				terminal.log("Error when logging out. Try again later", 1);
 			}	
 		})
 		.onException(jsonRPCerror)
@@ -75,8 +75,8 @@ function signOut() {
 }
 
 var jsonRPCerror = function(error) {
-	terminal.log("An error has been produced!")
-	terminal.log("Details: " + error.message + ' (' + error.code + ')');
+	terminal.log("An error has been produced!", 1)
+	terminal.log("Details: " + error.message + ' (' + error.code + ')', 1);
 }
 
 signInBtn.addEventListener('click', function (e) {
