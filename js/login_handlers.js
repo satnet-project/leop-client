@@ -35,7 +35,6 @@ function signIn() {
           				terminal.log('User credentials saved');
         			});
 				} else {
-					usernameInp.value = "";
 					passwordInp.value = "";
 				}
 				document.getElementById("login").style.display = "none";

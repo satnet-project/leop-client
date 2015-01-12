@@ -55,7 +55,8 @@ var kissParser = function(cb) {
 	// parameter data is an ArrayBuffer
 	this.update = function(data) {
 		var dataLength = data.byteLength;
-		var dataArray = new Uint8Array(data,0,dataLength);
+		var dataArray = new Uint8Array(data, 0, dataLength);
+
 		for (var i = 0; i < dataLength; i++) {
 			var newByte = dataArray[i];
 
