@@ -16,7 +16,7 @@
 :Author:
 	Xabier Crespo Álvarez (xabicrespog@gmail.com)
 	Diego Hurtado de Mendoza Pombo (diego.hdmp@gmail.com)
-	*/
+*/
 
 var signInBtn = document.getElementById('signInBtn');
 var logOutBtn = document.getElementById('logOutBtn');

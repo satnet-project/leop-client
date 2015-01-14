@@ -18,10 +18,26 @@
 */
 
 var FileSystem = function() {
+	var dataFrames = [];
 	var saveFileBtn = document.getElementById('saveFileBtn');
 	saveFileBtn.addEventListener('click', function (e) {
 		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'SATNet.frames'}, onSaveFile);
 	});
+
+	this.enableSaveBtn = function() {
+		saveFileBtn.style.display = "block";
+		saveFileBtn.disabled = false;
+	}
+
+	this.disableSaveBtn = function() {
+		saveFileBtn.style.display = "none";
+		saveFileBtn.disabled = true;
+		dataFrames = [];
+	}
+
+	this.newFrame = function(groundStation, timestamp, doppler, frame) {
+		dataFrames.push(groundStation + ',' + timestamp + ',' + doppler + ',' + frame + '\n');
+	}
 
 	function onSaveFile(writableEntry) {
 		if (!writableEntry) {
@@ -31,13 +47,19 @@ var FileSystem = function() {
 
 		writableEntry.createWriter(function(writer) {
 			writer.onerror = function(e) {
-				terminal.log('An error has been produced while saving the file', 1);
+				terminal.log('An error has been produced while saving the file. Please, try again.', 1);
 			};
 			writer.onwriteend = function(e) {
-				terminal.log('File succesfully saved')
+				terminal.log('File succesfully saved');				
+				disableSaveBtn();
 			};
 
-			writer.write(new Blob(['1234567890'], {type: 'text/plain'}));
+			writer.write(new Blob(dataFrames, {type:'text/plain'}));
 		});
 	}
 }
+
+var fileSystem = null;
+document.addEventListener("DOMContentLoaded", function(event) { 
+	fileSystem = new FileSystem();
+});
