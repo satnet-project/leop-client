@@ -18,7 +18,7 @@
 	Diego Hurtado de Mendoza Pombo (diego.hdmp@gmail.com)
 */
 
-var satnetClient = function() {
+var SatnetClient = function() {
 
 	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
 	//var rpc_url = 'http://127.0.0.1:8000/jrpc/';
@@ -186,7 +186,10 @@ var satnetClient = function() {
 					framesStored++;
 				}			
 			})
-			.onException(jsonRPCerror)
+			.onException(function(error) {
+				fileSystem.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
+				terminal.log("The frame could not be stored. It will be saved to save locally after the connection ends.", 1)
+			})
 			//.onComplete()
 			.execute();
 	};
@@ -207,7 +210,11 @@ var satnetClient = function() {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
 		terminal.log('Frames received: ' + framesReceived);
 		terminal.log('Frames stored:   ' + framesStored);
-		if (framesReceived > 0 && framesReceived/framesStored != 1) terminal.log('STORAGE ERROR', 1);
+		if (framesReceived > 0 && framesReceived/framesStored != 1) {
+			fileSystem.enableSaveBtn();
+			terminal.log('One or more frames have not been stored in the server', 1);
+			terminal.log('Please, save the frames to a local file and send us the file to satnet.uvigo@gmail.com', 1);
+		}	
 		framesStored = 0;
 		framesReceived = 0;
 
@@ -261,6 +268,7 @@ var satnetClient = function() {
 		satnetConnection.baudRate = Math.round(baudrate);
 		satnetConnection.groundStation = groundStationSel[groundStationSel.selectedIndex].value;
 		kissparser = new kissParser(onReceiveFrameCallback);
+		fileSystem.disableSaveBtn();
 		chrome.serial.onReceive.addListener(onReceiveCallback);
 		chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
 		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);		
@@ -291,6 +299,6 @@ var satnetClient = function() {
 // Create instance of satnet client on document ready
 var satnet;
 document.addEventListener("DOMContentLoaded", function(event) { 
-	satnet = new satnetClient();
+	satnet = new SatnetClient();
 	terminal.log('Welcome to SATNet Client!');
 });

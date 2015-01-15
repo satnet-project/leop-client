@@ -109,3 +109,7 @@ select {
 #rememberUser {
 	width: auto;
 }
+
+#saveFileBtn {
+	display: none;
+}

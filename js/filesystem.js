@@ -21,7 +21,7 @@ var FileSystem = function() {
 	var dataFrames = [];
 	var saveFileBtn = document.getElementById('saveFileBtn');
 	saveFileBtn.addEventListener('click', function (e) {
-		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'SATNet.frames'}, onSaveFile);
+		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'SATNet_frames'}, onSaveFile);
 	});
 
 	this.enableSaveBtn = function() {
@@ -34,6 +34,8 @@ var FileSystem = function() {
 		saveFileBtn.disabled = true;
 		dataFrames = [];
 	}
+	// Workaround to have a private version of the disableSaveBtn function
+	var privDisableSaveBtn = this.disableSaveBtn;
 
 	this.newFrame = function(groundStation, timestamp, doppler, frame) {
 		dataFrames.push(groundStation + ',' + timestamp + ',' + doppler + ',' + frame + '\n');
@@ -51,7 +53,7 @@ var FileSystem = function() {
 			};
 			writer.onwriteend = function(e) {
 				terminal.log('File succesfully saved');				
-				disableSaveBtn();
+				privDisableSaveBtn();
 			};
 
 			writer.write(new Blob(dataFrames, {type:'text/plain'}));
