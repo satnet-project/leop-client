@@ -23,9 +23,22 @@ var logOutBtn = document.getElementById('logOutBtn');
 var usernameInp = document.getElementById('usernameInp');
 var passwordInp = document.getElementById('passwordInp');
 var rememberUser = document.getElementById('rememberUser');
+var logoImg = document.getElementById('logoImg');
+var loadingIcn = document.getElementById('loadingIcn');
+
+function enableLoading() {
+	logoImg.classList.add('logoLoading');
+	loadingIcn.classList.add('loadingVisible');
+}
+
+function disableLoading() {
+	logoImg.classList.remove('logoLoading');
+	loadingIcn.classList.remove('loadingVisible');	
+}
 
 // Callback to deal with SIGN IN button
 function signIn() {
+	enableLoading();
 	satnet.rpc.system.login([ usernameInp.value, passwordInp.value ])
 		.onSuccess(function(result) {
 			if (result) {
@@ -50,7 +63,8 @@ function signIn() {
 				span.appendChild( document.createTextNode(usernameInp.value) )
 			} else {
 				terminal.log("Email/password incorrect", 1)
-			}	
+			}
+			disableLoading();
 		})
 		.onException(jsonRPCerror)
 		//.onComplete()
@@ -59,6 +73,7 @@ function signIn() {
 
 // Callback to deal with LOG OUT button
 function signOut() {
+	enableLoading();
 	satnet.rpc.system.logout()
 		.onSuccess(function(result) {
 			if (result) {	
@@ -67,7 +82,8 @@ function signOut() {
 				document.getElementById("main").style.display = "none";
 			} else {
 				terminal.log("Error when logging out. Try again later", 1);
-			}	
+			}
+			disableLoading();			
 		})
 		.onException(jsonRPCerror)
 		//.onComplete()
@@ -77,6 +93,7 @@ function signOut() {
 var jsonRPCerror = function(error) {
 	terminal.log("An error has been produced!", 1)
 	terminal.log("Details: " + error.message + ' (' + error.code + ')', 1);
+	disableLoading();	
 }
 
 signInBtn.addEventListener('click', function (e) {

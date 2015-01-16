@@ -54,13 +54,33 @@ body {
 }
 
 #header {
+	position: relative;
+	display: inline-block;
 }
 
-#logo {
+#logoImg {
 	width: auto;
 	border: 2px solid;
 	border-color: rgba(255, 255, 255, 0.5);
 	margin-bottom: 15px;
+  	-webkit-transition: opacity 0.5s ease-in-out;
+}
+
+.logoLoading {
+	opacity: 0.3;
+}
+
+#loadingIcn {
+	position: absolute;
+	top: 78px;
+	left: 78px;
+	z-index: 2;
+	opacity: 0;
+  	-webkit-transition: opacity 0.5s ease-in-out;
+}
+
+.loadingVisible {
+	opacity: 1  !important;
 }
 
 #footer {
