@@ -21,11 +21,14 @@ var FileSystem = function() {
 	var dataFrames = [];
 	var saveFileBtn = document.getElementById('saveFileBtn');
 	saveFileBtn.addEventListener('click', function (e) {
-		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'SATNet_frames'}, onSaveFile);
+		var d = new Date();
+		// "SATNET_dd/mm/yyyy_hh.MM.csv"
+		var fileName = 'SATNet' + '_' + d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear() + '_' + d.getHours() + '.' + d.getMinutes() + '.csv';
+		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:fileName}, onSaveFile);
 	});
 
 	this.enableSaveBtn = function() {
-		saveFileBtn.style.display = "block";
+		saveFileBtn.style.display = "inline-block";
 		saveFileBtn.disabled = false;
 	}
 

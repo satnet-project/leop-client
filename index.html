@@ -34,7 +34,6 @@
 				<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
 			</section>
 			<section id="main">
-				<button disable class="button-large pure-button pure-button-primary" id="saveFileBtn">Save file</button>				
 				<form class="pure-form">
 					<fieldset>
 						<div class="pure-g">
@@ -44,7 +43,7 @@
 								</select>
 							</div>
 							<div class="pure-u-1-5">
-								<button class="button-large pure-button" id="refreshPortsBtn"><i class="fa fa-refresh"></i></button>
+								<button class="button-large pure-button" id="refreshPortsBtn"><i class="fa fa-refresh fa-lg"></i></button>
 							</div>
 						</div>
 					</fieldset>
@@ -66,7 +65,7 @@
 								</select>
 							</div>
 							<div class="pure-u-1-5">
-								<button class="button-large pure-button" id="refreshGroundStationsBtn"><i class="fa fa-refresh"></i></button>
+								<button class="button-large pure-button" id="refreshGroundStationsBtn"><i class="fa fa-refresh fa-lg"></i></button>
 							</div>
 						</div>
 					</fieldset>
@@ -75,9 +74,20 @@
 				<button disabled class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
 				<p>Signed in as <span id="userEmailSpan"></span> <a id="logOutBtn" href="#">(log out)</a></p>
 			</section>
-			<footer id="info">
+			<footer id="about">
 				<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a> (v<span id="appVersionSpan"></span>)</p>
 			</footer>
+		</div>
+		<div id="info">
+			<form class="pure-form">
+				<fieldset>
+					<i class="fa fa-cloud-download fa-2x fa-middle" title="Frames received"></i>
+					<input disabled id="framesReceivedInp" class="infoInput" type="text" value=0>
+					<i class="fa fa-cloud-upload fa-2x fa-middle" title="Frames uploaded"></i>
+					<input disabled id="framesUploadedInp" class="infoInput" type="text" value=0>
+					<button class="infoBtn button-large pure-button pure-button-primary" id="saveFileBtn">Export to file</button>        
+				</fieldset>
+			</form>
 		</div>
 		<div id="terminalbox">
 			<ul id="terminal">

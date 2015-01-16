@@ -11,9 +11,21 @@ body {
 	height: 400px;
 }
 
-#terminalbox {
+#info {
 	position: absolute;
 	top: 0;
+	left: 300px;
+	width: 100%;
+	padding-left: 10px;
+	height: 40px;
+	background-color: #636363;
+	color: white;
+	text-align: left;
+}
+
+#terminalbox {
+	position: absolute;
+	top: 40px;
 	left: 300px;
 	width: 100%;
 	height: 100%;
@@ -112,4 +124,18 @@ select {
 
 #saveFileBtn {
 	display: none;
+}
+
+.infoInput {
+	width: 50px;
+	text-align: center;
+	margin: 0 5px;
+}
+
+.infoBtn {
+	width: auto;
+}
+
+.fa-middle {
+	vertical-align: middle;
 }

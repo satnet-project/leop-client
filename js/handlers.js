@@ -38,7 +38,7 @@ var SatnetClient = function() {
 
 	// Vars for testing purposes
 	var framesReceived = 0;
-	var framesStored = 0;
+	var framesUploaded = 0;
 
 	// Elements in DOM
 	var serialPortSel = document.getElementById('serialPortSel');
@@ -49,6 +49,8 @@ var SatnetClient = function() {
 	var refreshGroundStationsBtn = document.getElementById('refreshGroundStationsBtn');
 	var connectBtn = document.getElementById('connectBtn');
 	var disconnectBtn = document.getElementById('disconnectBtn');
+	var framesUploadedInp = document.getElementById('framesUploadedInp');
+	var framesReceivedInp = document.getElementById('framesReceivedInp');
 
 
 	this.initialize = function() {
@@ -133,6 +135,12 @@ var SatnetClient = function() {
 				connectBtn.classList.remove('button-error');
 			}, 1000);
 		} else {
+			// Init connections
+			framesUploaded = 0;
+			framesReceived = 0;
+			framesUploadedInp.value = framesUploaded;
+			framesReceivedInp.value = framesReceived;
+
 			terminal.log('Succesful serial connection (ID ' + connInfo.connectionId + ')');
 			terminal.log('Serial port : ' + satnetConnection.serialPort);
 			terminal.log('Baud rate : ' + satnetConnection.baudRate);
@@ -178,17 +186,20 @@ var SatnetClient = function() {
 		var b64_frame = btoa(String.fromCharCode.apply(null, frame));
 		terminal.log('FRAME RECEIVED  >>>>>>>>>  ' + b64_frame);
 		framesReceived++;
+		framesReceivedInp.value = framesReceived;
 
 		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
 			.onSuccess(function(result) {
 				if (result) {
 					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
-					framesStored++;
+					framesUploaded++;
+					framesUploadedInp.value = framesUploaded;
 				}			
 			})
 			.onException(function(error) {
 				fileSystem.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
-				terminal.log("The frame could not be stored. It will be saved to save locally after the connection ends.", 1)
+				terminal.log("The frame could not be stored", 1)
+				terminal.log("An option to export the frame to a local file will promt after clicking disconnect", 1)
 			})
 			//.onComplete()
 			.execute();
@@ -209,14 +220,12 @@ var SatnetClient = function() {
 	function closeConnection(connectionId) {
 		terminal.log('Connection closed (ID: ' + connectionId + ')');
 		terminal.log('Frames received: ' + framesReceived);
-		terminal.log('Frames stored:   ' + framesStored);
-		if (framesReceived > 0 && framesReceived/framesStored != 1) {
+		terminal.log('Frames stored:   ' + framesUploaded);
+		if (framesReceived > 0 && framesReceived/framesUploaded != 1) {
 			fileSystem.enableSaveBtn();
 			terminal.log('One or more frames have not been stored in the server', 1);
 			terminal.log('Please, save the frames to a local file and send us the file to satnet.uvigo@gmail.com', 1);
 		}	
-		framesStored = 0;
-		framesReceived = 0;
 
 		chrome.serial.flush(connectionInfo.connectionId, onFlush);
 		connectionInfo = null;
