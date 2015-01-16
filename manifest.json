@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
   "name": "SATNet LEOP Client",
-  "version": "0.22",
+  "version": "0.3",
   "description": "This app retreives passive data for the SATNET network to support LEOP operations",
   "icons": {
     "128": "assets/satnet_128.png",
     "48": "assets/satnet_48_test.png",
     "16": "assets/satnet_16.png"   
   },
-  "permissions": ["serial", "storage", "https://satnet.aero.calpoly.edu/jrpc/"],
+  "permissions": ["serial", "storage", {"fileSystem":["write"]}, "https://satnet.aero.calpoly.edu/jrpc/"],
   "app": {
     "background": {
       "scripts": ["background.js"]
