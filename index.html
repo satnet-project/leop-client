@@ -17,88 +17,91 @@
 		<link rel="stylesheet" href="css/base.css">
 	</head>
 	<body>
-		<div id="menu">
-			<header id="header">
-				<img id="logoImg" src="assets/satnet_200.png">
-				<i id="loadingIcn" class="fa fa-circle-o-notch fa-spin fa-4x"></i>
-			</header>
-			<section id="login">
-				<form class="pure-form pure-form-stacked">
-					<fieldset class="pure-group">
-						<input id="usernameInp" type="text" placeholder="Email" autofocus>
-						<input id="passwordInp" type="password" placeholder="Password">
-					</fieldset>
-					<fieldset>
+		
+		<div id="app-container">
+			<div id="menu-container">
+				<header id="header">
+					<img id="logoImg" src="assets/satnet_200.png">
+					<i id="loadingIcn" class="fa fa-circle-o-notch fa-spin fa-4x"></i>
+				</header>
+				<section id="login">
+					<form class="pure-form pure-form-stacked">
+						<fieldset class="pure-group">
+							<input id="usernameInp" type="text" placeholder="Email" autofocus>
+							<input id="passwordInp" type="password" placeholder="Password">
+						</fieldset>
+						<fieldset>
 							<input id="rememberUser" type="checkbox"> Remember me
-					</fieldset>
-				</form>
-				<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
-			</section>
-			<section id="main">
-				<form class="pure-form">
-					<fieldset>
-						<div class="pure-g">
-							<div class="pure-u-4-5">
-								<select id="serialPortSel" >
-									<option value="not_selected">Select port...</option>
-								</select>
+						</fieldset>
+					</form>
+					<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
+				</section>
+				<section id="main">
+					<form class="pure-form">
+						<fieldset>
+							<div class="pure-g">
+								<div class="pure-u-4-5">
+									<select id="serialPortSel" >
+										<option value="not_selected">Select port...</option>
+									</select>
+								</div>
+								<div class="pure-u-1-5">
+									<button class="button-large pure-button" id="refreshPortsBtn"><i class="fa fa-refresh fa-lg"></i></button>
+								</div>
 							</div>
-							<div class="pure-u-1-5">
-								<button class="button-large pure-button" id="refreshPortsBtn"><i class="fa fa-refresh fa-lg"></i></button>
+						</fieldset>
+						<fieldset>
+							<select id="baudRateSel">
+								<option value="not_selected">Select baud rate...</option>
+								<option value="115200">115200</option>
+								<option value="57600">57600</option>
+								<option value="19200">19200</option>
+								<option value="Other">Other</option>
+							</select>
+							<input id="baudRateInp" type="text" placeholder="Select baud rate...">
+						</fieldset>
+						<fieldset>
+							<div class="pure-g">
+								<div class="pure-u-4-5">
+									<select id="groundStationSel" >
+										<option value="not_selected">Select ground station...</option>
+									</select>
+								</div>
+								<div class="pure-u-1-5">
+									<button class="button-large pure-button" id="refreshGroundStationsBtn"><i class="fa fa-refresh fa-lg"></i></button>
+								</div>
 							</div>
-						</div>
-					</fieldset>
-					<fieldset>
-						<select id="baudRateSel">
-							<option value="not_selected">Select baud rate...</option>
-							<option value="115200">115200</option>
-							<option value="57600">57600</option>
-							<option value="19200">19200</option>
-							<option value="Other">Other</option>
-						</select>
-						<input id="baudRateInp" type="text" placeholder="Select baud rate...">
-					</fieldset>
-					<fieldset>
-						<div class="pure-g">
-							<div class="pure-u-4-5">
-								<select id="groundStationSel" >
-									<option value="not_selected">Select ground station...</option>
-								</select>
-							</div>
-							<div class="pure-u-1-5">
-								<button class="button-large pure-button" id="refreshGroundStationsBtn"><i class="fa fa-refresh fa-lg"></i></button>
-							</div>
-						</div>
-					</fieldset>
-				</form>
-				<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
-				<button disabled class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
-				<p>Signed in as <span id="userEmailSpan"></span> <a id="logOutBtn" href="#">(log out)</a></p>
-			</section>
-			<footer id="about">
-				<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a> (v<span id="appVersionSpan"></span>)</p>
-			</footer>
-		</div>
-		<div id="info">
-			<form class="pure-form">
-				<fieldset>
-					<i class="fa fa-cloud-download fa-2x fa-middle" title="Frames received"></i>
-					<input disabled id="framesReceivedInp" class="infoInput" type="text" value=0>
-					<i class="fa fa-cloud-upload fa-2x fa-middle" title="Frames uploaded"></i>
-					<input disabled id="framesUploadedInp" class="infoInput" type="text" value=0>
-					<button class="infoBtn button-large pure-button pure-button-primary" id="saveFileBtn">Export to file</button>        
-				</fieldset>
-			</form>
-		</div>
-		<div id="terminalbox">
-			<ul id="terminal">
-			</ul>
+						</fieldset>
+					</form>
+					<button class="button-large pure-button pure-button-primary" id="connectBtn">CONNECT</button>
+					<button disabled class="button-large pure-button pure-button-primary pure-button-disabled button-error" id="disconnectBtn">DISCONNECT</button>
+					<p>Signed in as <span id="userEmailSpan"></span> <a id="logOutBtn" href="#">(log out)</a></p>
+				</section>
+				<footer id="about">
+					<p>Developed by <a href="http://github.com/satnet-project" target="_blank">SatNET</a> (v<span id="appVersionSpan"></span>)</p>
+				</footer>
+			</div>
+			<div id="info-container">
+				<div id="info" >
+					<form class="pure-form">
+						<i class="fa fa-cloud-download fa-2x fa-middle" title="Frames received"></i>
+						<input disabled id="framesReceivedInp" class="infoInput" type="text" value=0>
+						<i class="fa fa-cloud-upload fa-2x fa-middle" title="Frames uploaded"></i>
+						<input disabled id="framesUploadedInp" class="infoInput" type="text" value=0>
+						<button class="infoBtn button-large pure-button pure-button-primary" id="saveFileBtn">Export to file</button>
+					</form>
+				</div>
+				<div id="terminalbox">
+					<ul id="terminal">
+					</ul>
+				</div>
+			</div>
 		</div>
 		<script type="text/javascript" src="js/jsonRPC.js"></script>
 		<script src="js/terminal.js"></script>
 		<script src="js/kiss.js"></script>
 		<script src="js/handlers.js"></script>
 		<script src="js/login_handlers.js"></script>
-		<script src="js/filesystem.js"></script>		
+		<script src="js/filesystem.js"></script>
 	</body>
 </html>
