@@ -21,12 +21,13 @@
 var SatnetClient = function() {
 
 	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
-	//var rpc_url = 'http://127.0.0.1:8000/jrpc/';
+	var rpc_url = 'http://127.0.0.1:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
 		 'system.logout',
 		 'communications.gs.storePassiveMessage',
-		 'configuration.gs.list'] });
+		 'configuration.gs.list',
+		 'leop.getMessages'] });
 
 	var kissparser = new kissParser(onReceiveFrameCallback);
 	var connectionInfo = null;
@@ -51,7 +52,10 @@ var SatnetClient = function() {
 	var disconnectBtn = document.getElementById('disconnectBtn');
 	var framesUploadedInp = document.getElementById('framesUploadedInp');
 	var framesReceivedInp = document.getElementById('framesReceivedInp');
-
+	var enDownloadMsgForm = document.getElementById('enDownloadMsgForm');
+	var downloadMsgBtn = document.getElementById('downloadMsgBtn');
+	var enDownloadMsgFormBtn = document.getElementById('enDownloadMsgFormBtn');
+	var downloadMsgStartDateInp = document.getElementById('downloadMsgStartDateInp');
 
 	this.initialize = function() {
 		refreshGS();
@@ -69,7 +73,7 @@ var SatnetClient = function() {
 		satnet.rpc.configuration.gs.list()
 			.onSuccess(function(result) {
 				terminal.log(result.length + " ground station(s) was(were) found");
-				if (!result.length) terminal.log("Please, create a GS through SATNET website");
+				if (!result.length) terminal.log("Please, create a GS through SATNET website", 1);
 
 				for (var i = 0; i < result.length; i++) {
 					var option = document.createElement('option');
@@ -87,7 +91,6 @@ var SatnetClient = function() {
 						}
 					}
 				});		
-
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
@@ -121,8 +124,7 @@ var SatnetClient = function() {
 				baudRateInp.style.display = "block";
 				baudRateInp.value = items.baudRate;
 			}
-		});		
-
+		});
 	}
 
 	// Callback to deal with 'CONNECT' button
@@ -194,7 +196,7 @@ var SatnetClient = function() {
 					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
 					framesUploaded++;
 					framesUploadedInp.value = framesUploaded;
-				}			
+				}
 			})
 			.onException(function(error) {
 				fileSystem.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
@@ -214,7 +216,7 @@ var SatnetClient = function() {
 	// Callback corresponding to a flush event
 	function onFlush(result) {
 		if (result) terminal.log('Serial port successfully flushed');
-		else terminal.log('Nothing to flush');		
+		else terminal.log('Nothing to flush');
 	}
 
 	function closeConnection(connectionId) {
@@ -251,7 +253,33 @@ var SatnetClient = function() {
 	function enableElement(element) {
 		element.disabled = false;
 		element.classList.remove('pure-button-disabled');
-	}	
+	}
+
+	//Callback to Download all available messages from the server
+	function downloadMessages() {
+		enDownloadMsgFormBtn.style.display = "block";
+		downloadMsgForm.style.display = "none";
+		if (downloadMsgStartDateInp.value == "") {
+			terminal.log('Please, pick the date from which you want to retrieve the data', 1);
+			return;
+		}
+		
+		satnet.rpc.leop.getMessages(['ELANA', downloadMsgStartDateInp.value])
+			.onSuccess(function(result) {
+				//TODO: save messages to file
+				terminal.log(result);
+			})
+			.onException(jsonRPCerror)
+			//.onComplete()
+			.execute();		
+	}
+
+	//Callback to Download all available messages from the server
+	function enDownloadMessagesForm() {
+		enDownloadMsgFormBtn.style.display = "none";
+		downloadMsgForm.style.display = "block";
+	}
+
 	/********************************
 	* Event listeners
 	*********************************/
@@ -303,11 +331,14 @@ var SatnetClient = function() {
 
 	refreshPortsBtn.addEventListener('click', refreshDevices);
 	refreshGroundStationsBtn.addEventListener('click', refreshGS);
+
+	downloadMsgBtn.addEventListener('click', downloadMessages);
+	enDownloadMsgFormBtn.addEventListener('click', enDownloadMessagesForm);
 }
 
 // Create instance of satnet client on document ready
 var satnet;
-document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", function(event) {
 	satnet = new SatnetClient();
 	terminal.log('Welcome to SATNet Client!');
 });

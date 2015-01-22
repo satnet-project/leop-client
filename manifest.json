@@ -14,5 +14,5 @@
       "scripts": ["background.js"]
     }
   },
-  "minimum_chrome_version": "35"
+  "minimum_chrome_version": "36"
 }

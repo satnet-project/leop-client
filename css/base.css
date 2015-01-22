@@ -1,6 +1,6 @@
 * {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body {
@@ -20,11 +20,73 @@ body {
 	flex-direction: row;
 }
 
+/* Properties related to the left sidebar */
 #menu-container {
 	padding: 10px;
-	min-width: 250px;
+	min-width: 300px;
 }
 
+#main {
+	display: none;
+}
+
+#login {
+	display: block;
+}
+
+select {
+	border: 0 !important;
+	background-color: #e6e6e6 !important;
+}
+
+#menu-container .pure-button {
+	width: 100%;
+}
+
+#menu-container input, select {
+	width: 100%;
+}
+
+#baudRateInp {
+	display: none;
+}
+
+#header {
+	position: relative;
+	display: inline-block;
+}
+
+#logoImg {
+	width: auto;
+	border: 2px solid;
+	border-color: rgba(255, 255, 255, 0.5);
+	margin-bottom: 15px;
+	-webkit-transition: opacity 0.4s ease-in-out;
+	transition: opacity 0.4s ease-in-out;
+}
+
+.logoLoading {
+	opacity: 0.3;
+}
+
+#loadingIcn {
+	position: absolute;
+	top: 78px;
+	left: 78px;
+	z-index: 2;
+	opacity: 0;
+	-webkit-transition: opacity 0.4s ease-in-out;
+	transition: opacity 0.4s ease-in-out;
+}
+
+.loadingVisible {
+	opacity: 1  !important;
+}
+
+#footer {
+}
+
+/* Properties related to the righ window */
 #info-container {
 	min-width: 250px;	
 	display: flex;
@@ -37,7 +99,28 @@ body {
 	margin: 5px 10px;
 	color: white;
 	text-align: left;
-	min-height: -webkit-min-content
+	min-height: -webkit-min-content;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#info > button {
+	width: auto;
+}
+
+#downloadMsgForm {
+	display: none;
+}
+
+#enDownloadMsgForm {
+}
+
+.infoInput {
+	width: 50px;
+	text-align: center;
+	margin: 0 5px;
+	vertical-align: middle;	
 }
 
 #terminalbox {
@@ -66,43 +149,7 @@ body {
 	color: yellow;
 }
 
-#header {
-	position: relative;
-	display: inline-block;
-}
-
-#logoImg {
-	width: auto;
-	border: 2px solid;
-	border-color: rgba(255, 255, 255, 0.5);
-	margin-bottom: 15px;
-  	-webkit-transition: opacity 0.5s ease-in-out;
-}
-
-.logoLoading {
-	opacity: 0.3;
-}
-
-#loadingIcn {
-	position: absolute;
-	top: 78px;
-	left: 78px;
-	z-index: 2;
-	opacity: 0;
-  	-webkit-transition: opacity 0.5s ease-in-out;
-}
-
-.loadingVisible {
-	opacity: 1  !important;
-}
-
-#footer {
-}
-
-.pure-button, input, select {
-	width: 100%;
-}
-
+/* General properties */
 .button-large {
 	font-size: 110%;
 }
@@ -130,43 +177,14 @@ a:visited {
 	color: #95a5a6;
 }
 
-#disconnectBtn {
-
-}
-
-#main {
-	display: none;
-}
-
-#login {
-	display: block;
-}
-
-select {
-	border: 0 !important;
-	background-color: #e6e6e6 !important;
-}
-
-#baudRateInp {
-	display: none;
-}
-
-#rememberUser {
+.checkbox {
 	width: auto;
+	margin:0;
+	padding: 0
 }
 
 #saveFileBtn {
 	display: none;
-}
-
-.infoInput {
-	width: 50px;
-	text-align: center;
-	margin: 0 5px;
-}
-
-.infoBtn {
-	width: auto;
 }
 
 .fa-middle {

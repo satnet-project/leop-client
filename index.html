@@ -31,7 +31,7 @@
 							<input id="passwordInp" type="password" placeholder="Password">
 						</fieldset>
 						<fieldset>
-							<input id="rememberUser" type="checkbox"> Remember me
+							<input id="rememberUser" class="checkbox" type="checkbox"> Remember me
 						</fieldset>
 					</form>
 					<button class="button-large pure-button pure-button-primary" id="signInBtn">Sign in</button>
@@ -82,16 +82,23 @@
 				</footer>
 			</div>
 			<div id="info-container">
-				<div id="info" >
+				<div id="info">
 					<form class="pure-form">
 						<i class="fa fa-cloud-download fa-2x fa-middle" title="Frames received"></i>
 						<input disabled id="framesReceivedInp" class="infoInput" type="text" value=0>
 						<i class="fa fa-cloud-upload fa-2x fa-middle" title="Frames uploaded"></i>
 						<input disabled id="framesUploadedInp" class="infoInput" type="text" value=0>
-						<button class="infoBtn button-large pure-button pure-button-primary" id="saveFileBtn">Export to file</button>
+						<button class="button-large pure-button pure-button-primary" id="saveFileBtn">Export to file</button>
 					</form>
-				</div>
-				<div id="terminalbox">
+						<button class="button-large pure-button" id="enDownloadMsgFormBtn">Retrieve available messages</button>
+						<form id="downloadMsgForm" class="pure-form">
+							<input type="text" id="downloadMsgLaunchInp" value="ELANA" disabled>						
+							<input type="date" id="downloadMsgStartDateInp">
+							<button class="button-large pure-button" id="downloadMsgBtn"><i class="fa fa-download fa-lg fa-middle" title="Download messages"></i></button>
+						</form>
+
+					</div>
+			<div id="terminalbox">
 					<ul id="terminal">
 					</ul>
 				</div>
