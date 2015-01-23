@@ -21,7 +21,7 @@
 var SatnetClient = function() {
 
 	var rpc_url = 'https://satnet.aero.calpoly.edu/jrpc/';
-	var rpc_url = 'http://127.0.0.1:8000/jrpc/';
+	//var rpc_url = 'http://127.0.0.1:8000/jrpc/';
 	this.rpc = new JsonRPC(rpc_url, { methods: 
 		['system.login',
 		 'system.logout',
@@ -52,7 +52,6 @@ var SatnetClient = function() {
 	var disconnectBtn = document.getElementById('disconnectBtn');
 	var framesUploadedInp = document.getElementById('framesUploadedInp');
 	var framesReceivedInp = document.getElementById('framesReceivedInp');
-	var enDownloadMsgForm = document.getElementById('enDownloadMsgForm');
 	var downloadMsgBtn = document.getElementById('downloadMsgBtn');
 	var enDownloadMsgFormBtn = document.getElementById('enDownloadMsgFormBtn');
 	var downloadMsgStartDateInp = document.getElementById('downloadMsgStartDateInp');
@@ -264,7 +263,8 @@ var SatnetClient = function() {
 			return;
 		}
 		
-		satnet.rpc.leop.getMessages(['ELANA', downloadMsgStartDateInp.value])
+		//Date expressed according to ISO 8601 (UTC time)
+		satnet.rpc.leop.getMessages(['ELANA', downloadMsgStartDateInp.value.concat('T00:00:00+00:00')])
 			.onSuccess(function(result) {
 				//TODO: save messages to file
 				terminal.log(result);

@@ -52,6 +52,8 @@ function signIn() {
 				}
 				document.getElementById("login").style.display = "none";
 				document.getElementById("main").style.display = "block";
+				document.getElementById('enDownloadMsgFormBtn').disabled = false;
+
 				satnet.initialize();
 
 				//Modify username at the footer 
@@ -80,6 +82,9 @@ function signOut() {
 				terminal.log("Successfully logged out");
 				document.getElementById("login").style.display = "block";
 				document.getElementById("main").style.display = "none";
+				document.getElementById('enDownloadMsgFormBtn').disabled = true;
+				enDownloadMsgFormBtn.style.display = "block";
+				downloadMsgForm.style.display = "none";
 			} else {
 				terminal.log("Error when logging out. Try again later", 1);
 			}
