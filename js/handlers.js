@@ -55,6 +55,7 @@ var SatnetClient = function() {
 	var downloadMsgBtn = document.getElementById('downloadMsgBtn');
 	var enDownloadMsgFormBtn = document.getElementById('enDownloadMsgFormBtn');
 	var downloadMsgStartDateInp = document.getElementById('downloadMsgStartDateInp');
+	var downloadMsgLaunchInp = document.getElementById('downloadMsgLaunchInp');
 
 	this.initialize = function() {
 		refreshGS();
@@ -264,7 +265,7 @@ var SatnetClient = function() {
 		}
 		
 		//Date expressed according to ISO 8601 (UTC time)
-		satnet.rpc.leop.getMessages(['ELANA', downloadMsgStartDateInp.value.concat('T00:00:00+00:00')])
+		satnet.rpc.leop.getMessages([downloadMsgLaunchInp.value, downloadMsgStartDateInp.value.concat('T00:00:00+00:00')])
 			.onSuccess(function(result) {
 				//TODO: save messages to file
 				terminal.log(result);
