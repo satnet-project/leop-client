@@ -48,10 +48,11 @@ var SatnetClient = function() {
 	var baudRateInp = document.getElementById('baudRateInp');
 	var groundStationSel = document.getElementById('groundStationSel');
 	var refreshGroundStationsBtn = document.getElementById('refreshGroundStationsBtn');
-	var connectBtn = document.getElementById('connectBtn');
+	var connectBtn = document.getElementById('connectBtn');	
 	var disconnectBtn = document.getElementById('disconnectBtn');
 	var framesUploadedInp = document.getElementById('framesUploadedInp');
 	var framesReceivedInp = document.getElementById('framesReceivedInp');
+	var saveToFileBtn = document.getElementById('saveToFileBtn');	
 	var downloadMsgBtn = document.getElementById('downloadMsgBtn');
 	var enDownloadMsgFormBtn = document.getElementById('enDownloadMsgFormBtn');
 	var downloadMsgStartDateInp = document.getElementById('downloadMsgStartDateInp');
@@ -190,7 +191,7 @@ var SatnetClient = function() {
 		framesReceived++;
 		framesReceivedInp.value = framesReceived;
 
-		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now(), 0, b64_frame ])
+		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now()*1000, 0, b64_frame ])
 			.onSuccess(function(result) {
 				if (result) {
 					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
@@ -199,7 +200,7 @@ var SatnetClient = function() {
 				}
 			})
 			.onException(function(error) {
-				fileSystem.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
+				saveToFileLostMessages.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
 				terminal.log("The frame could not be stored", 1)
 				terminal.log("An option to export the frame to a local file will promt after clicking disconnect", 1)
 			})
@@ -224,7 +225,8 @@ var SatnetClient = function() {
 		terminal.log('Frames received: ' + framesReceived);
 		terminal.log('Frames stored:   ' + framesUploaded);
 		if (framesReceived > 0 && framesReceived/framesUploaded != 1) {
-			fileSystem.enableSaveBtn();
+			saveToFileBtn.style.display = "inline-block";
+			saveToFileBtn.disabled = false;
 			terminal.log('One or more frames have not been stored in the server', 1);
 			terminal.log('Please, save the frames to a local file and send us the file to satnet.uvigo@gmail.com', 1);
 		}	
@@ -268,7 +270,17 @@ var SatnetClient = function() {
 		satnet.rpc.leop.getMessages([downloadMsgLaunchInp.value, downloadMsgStartDateInp.value.concat('T00:00:00+00:00')])
 			.onSuccess(function(result) {
 				//TODO: save messages to file
-				terminal.log(result);
+				if(result == []) {
+					terminal.log('There are no messages available', 1);
+					return;
+				}
+
+				terminal.log('Select where do you want to save the messages');
+				messagesFile = new saveToFileLostMessages();
+				for(var i=0; i<result.length; i++) {
+					messagesFile.newFrame(result[i].gs_identifier, result[i].timestamp, 0, result[i].message);
+				}
+				messagesFile.save();
 			})
 			.onException(jsonRPCerror)
 			//.onComplete()
@@ -306,7 +318,8 @@ var SatnetClient = function() {
 		satnetConnection.baudRate = Math.round(baudrate);
 		satnetConnection.groundStation = groundStationSel[groundStationSel.selectedIndex].value;
 		kissparser = new kissParser(onReceiveFrameCallback);
-		fileSystem.disableSaveBtn();
+		saveToFileBtn.style.display = "none";
+		saveToFileBtn.disabled = true;
 		chrome.serial.onReceive.addListener(onReceiveCallback);
 		chrome.serial.onReceiveError.addListener(onReceiveErrorCallback);
 		chrome.serial.connect(path, {bitrate: Math.round(baudrate), persistent: true}, onConnect);		
@@ -333,13 +346,20 @@ var SatnetClient = function() {
 	refreshPortsBtn.addEventListener('click', refreshDevices);
 	refreshGroundStationsBtn.addEventListener('click', refreshGS);
 
+	saveToFileBtn.addEventListener('click', function (e) {
+		saveToFileLostMessages.save();
+	});
+
 	downloadMsgBtn.addEventListener('click', downloadMessages);
 	enDownloadMsgFormBtn.addEventListener('click', enDownloadMessagesForm);
 }
 
 // Create instance of satnet client on document ready
-var satnet;
+var satnet = null;
+var saveToFileLostMessages = null;
+
 document.addEventListener("DOMContentLoaded", function(event) {
 	satnet = new SatnetClient();
+	saveToFileLostMessages = new FileSystem();
 	terminal.log('Welcome to SATNet Client!');
 });

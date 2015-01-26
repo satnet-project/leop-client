@@ -19,26 +19,13 @@
 
 var FileSystem = function() {
 	var dataFrames = [];
-	var saveFileBtn = document.getElementById('saveFileBtn');
-	saveFileBtn.addEventListener('click', function (e) {
+
+	this.save = function() {
 		var d = new Date();
 		// "SATNET_dd/mm/yyyy_hh.MM.csv"
 		var fileName = 'SATNet' + '_' + d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear() + '_' + d.getHours() + '.' + d.getMinutes() + '.csv';
 		chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:fileName}, onSaveFile);
-	});
-
-	this.enableSaveBtn = function() {
-		saveFileBtn.style.display = "inline-block";
-		saveFileBtn.disabled = false;
 	}
-
-	this.disableSaveBtn = function() {
-		saveFileBtn.style.display = "none";
-		saveFileBtn.disabled = true;
-		dataFrames = [];
-	}
-	// Workaround to have a private version of the disableSaveBtn function
-	var privDisableSaveBtn = this.disableSaveBtn;
 
 	this.newFrame = function(groundStation, timestamp, doppler, frame) {
 		dataFrames.push(groundStation + ',' + timestamp + ',' + doppler + ',' + frame + '\n');
@@ -55,16 +42,11 @@ var FileSystem = function() {
 				terminal.log('An error has been produced while saving the file. Please, try again.', 1);
 			};
 			writer.onwriteend = function(e) {
-				terminal.log('File succesfully saved');				
-				privDisableSaveBtn();
+				terminal.log('File succesfully saved');		
+				dataFrames = [];		
 			};
 
 			writer.write(new Blob(dataFrames, {type:'text/plain'}));
 		});
 	}
 }
-
-var fileSystem = null;
-document.addEventListener("DOMContentLoaded", function(event) { 
-	fileSystem = new FileSystem();
-});
