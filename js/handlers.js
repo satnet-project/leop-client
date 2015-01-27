@@ -276,7 +276,7 @@ var SatnetClient = function() {
 				}
 
 				terminal.log('Select where do you want to save the messages');
-				messagesFile = new saveToFileLostMessages();
+				messagesFile = new FileSystem();
 				for(var i=0; i<result.length; i++) {
 					messagesFile.newFrame(result[i].gs_identifier, result[i].timestamp, 0, result[i].message);
 				}
