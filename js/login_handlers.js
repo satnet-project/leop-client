@@ -47,9 +47,8 @@ function signIn() {
 					chrome.storage.local.set({'email': usernameInp.value, 'password': passwordInp.value}, function() {
           				terminal.log('User credentials saved');
         			});
-				} else {
-					passwordInp.value = "";
 				}
+				
 				document.getElementById("login").style.display = "none";
 				document.getElementById("main").style.display = "block";
 				document.getElementById('enDownloadMsgFormBtn').disabled = false;

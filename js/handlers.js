@@ -73,6 +73,7 @@ var SatnetClient = function() {
 		}		
 		satnet.rpc.configuration.gs.list()
 			.onSuccess(function(result) {
+				resetSessionTimer();
 				terminal.log(result.length + " ground station(s) was(were) found");
 				if (!result.length) terminal.log("Please, create a GS through SATNET website", 1);
 
@@ -193,11 +194,12 @@ var SatnetClient = function() {
 
 		satnet.rpc.communications.gs.storePassiveMessage([ satnetConnection.groundStation, Date.now()*1000, 0, b64_frame ])
 			.onSuccess(function(result) {
+				resetSessionTimer();
 				if (result) {
 					terminal.log('FRAME STORED    <<<<<<<<<  ' + b64_frame);
 					framesUploaded++;
 					framesUploadedInp.value = framesUploaded;
-				}
+				}				
 			})
 			.onException(function(error) {
 				saveToFileLostMessages.newFrame(satnetConnection.groundStation, Date.now(), 0, b64_frame);
@@ -269,7 +271,7 @@ var SatnetClient = function() {
 		//Date expressed according to ISO 8601 (UTC time)
 		satnet.rpc.leop.getMessages([downloadMsgLaunchInp.value, downloadMsgStartDateInp.value.concat('T00:00:00+00:00')])
 			.onSuccess(function(result) {
-				//TODO: save messages to file
+				resetSessionTimer();
 				if(result == []) {
 					terminal.log('There are no messages available', 1);
 					return;
@@ -352,6 +354,34 @@ var SatnetClient = function() {
 
 	downloadMsgBtn.addEventListener('click', downloadMessages);
 	enDownloadMsgFormBtn.addEventListener('click', enDownloadMessagesForm);
+
+	/********************************
+	* Keep session alive
+	*********************************/
+	// Call login each 5 minutes
+	var sessionId = window.setInterval(keepAlive,300000);
+
+	// This methods calls the RPC system.login method to keep the session alive
+	function keepAlive() {
+		satnet.rpc.system.login([ usernameInp.value, passwordInp.value ])
+			.onSuccess(function(result) {
+				if (result) {
+					terminal.log("Session alive");
+				} else {
+					terminal.log("Error when trying to keep session alive", 1)
+				}
+			})
+			.onException(jsonRPCerror)
+			//.onComplete()
+			.execute();
+	}
+
+	// This method resets the keepAlive timer. It should be called after other RPC
+	// functions (e.g. after sending a messsage to the server)
+	function resetSessionTimer() {
+		window.clearInterval(sessionId);
+		sessionId = window.setInterval(keepAlive,300000);
+	}
 }
 
 // Create instance of satnet client on document ready
